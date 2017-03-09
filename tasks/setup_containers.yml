@@ -1,0 +1,91 @@
+---
+# Setup docker containers
+
+- block:
+  - name: setup docker containers
+    docker_container:
+      name: >-
+        {{ container.name }}
+      image: >-
+        {{ container.image | default(default_values.image) }}
+      privileged: >-
+        {{ container.privileged | default(default_values.privileged) }}
+      state: >-
+        {{ container.state | default(default_values.state) }}
+      restart: >-
+        {{ container.restart | default(default_values.restart) }}
+      tls: >-
+        {{ container.tls | default(default_values.tls) }}
+      stop_timeout: >-
+        {{ container.stop_timeout | default(default_values.stop_timeout) }}
+      tty: >-
+        {{ container.tty | default(default_values.tty) }}
+      expose: >-
+        {{ container.expose | default(default_values.expose) }}
+      command: >-
+        {{ container.command | default(default_values.command) }}
+      env: >-
+        {{ container.env | default(default_values.env) }}
+      links: >-
+        {{ container.links | default(default_values.links) }}
+    with_items: >
+      {{ docker_provisioner_containers | default(default_containers) }}
+    loop_control:
+      label: "{{ container.name }}"
+      loop_var: container
+
+  # We had to move the invocation of the docker inspect command into a bash
+  # script because it involves a command line parameter with {{ }}. Registering
+  # the results puts the command line params into invocation. Referencing the
+  # results variable fails because Ansible runs the invocation through jinja2
+  # template engine and the {{.NetworkSettings.IPAddress}} variable does not
+  # exist
+
+  - block:
+    - name: get containers ip addresses
+      local_action:
+        module: "shell"
+        args: "{{ role_path }}/files/docker_get_ip.sh {{ container.name }}"
+      register: docker_provisioner_get_ip_result
+      when: >
+        "{{ container.state | default(default_values.state) }}"
+          in ["present", "started"]
+      with_items: >
+        {{ docker_provisioner_containers | default(default_containers) }}
+      loop_control:
+        label: "{{ container.name }}"
+        loop_var: container
+      changed_when: false
+
+    - name: associate auth info / group info to containers
+      add_host:
+        name: >
+          {{ container.1.name }}
+        ansible_user: >-
+          {{ container.1.ansible_user | default(default_values.ansible_user) }}
+        ansible_password: >-
+          {{ container.1.ansible_ssh_pass
+            | default(default_values.ansible_password }}
+        groups: >-
+          {{ docker_provisioner_groups
+            | union(container.1.groups
+            | default(docker_provisioner_default_groups)) | join(',') }}
+      when: >
+        "{{ container.state | default(default_values.state) }}"
+          in ["present", "started"]
+      with_indexed_items: >
+        {{ docker_provisioner_containers | default(default_containers) }}
+      changed_when: false
+      loop_control:
+        label: "{{ container.1.name }}"
+        loop_var: container
+
+    - include: setup_containers_tty.yml
+    - include: setup_containers_ssh.yml
+
+  vars:
+    default_values: "{{ docker_provisioner_default_container }}"
+    default_containers: "{{ docker_provisioner_default_containers }}"
+  tags:
+    - role::docker_provisioner
+    - role::docker_provisioner::containers

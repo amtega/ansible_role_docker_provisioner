@@ -1,0 +1,43 @@
+---
+# Setup connection of docker containers that use tty
+
+- block:
+
+  - name: setup connection of docker containers that use tty
+    add_host:
+      name: "{{ container.1.name }}"
+      ansible_host: "{{ container.1.name }}"
+      docker_ip: "{{ docker_provisioner_ip_result.results[container.0].stdout }}"
+      ansible_connection: docker
+    when:
+      - container.1.tty | default(default_values.tty)
+      - >
+        "{{ container.1.state | default(default_values.state) }}"
+          in ["present", "started"]
+    changed_when: false
+    with_indexed_items: >
+      {{ docker_provisioner_containers | default(default_containers) }}
+    loop_control:
+      label: "{{ container.1.name }}"
+      loop_var: container
+
+  - name: ensure that is possible to connect to docker containers that use tty
+    raw: "echo Docker contaimer is up"
+    when:
+      - item.tty | default(default_values.tty)
+      - >
+        "{{ item.state | default(default_values.state) }}"
+          in ["present", "started"]
+    changed_when: false
+    delegate_to: "{{ item.name }}"
+    with_items: >
+      {{ docker_provisioner_containers | default(default_containers) }}
+    loop_control:
+      label: "{{ item.name }}"
+
+  vars:
+    default_values: "{{ docker_provisioner_default_container }}"
+    default_containers: "{{ docker_provisioner_default_containers }}"
+  tags:
+    - role::docker_provisioner
+    - role::docker_provisioner::containers

@@ -1,0 +1,5 @@
+---
+# Role tasks
+
+- include: setup_images.yml
+- include: setup_containers.yml

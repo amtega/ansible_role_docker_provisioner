@@ -1,0 +1,14 @@
+---
+# Role default lower priority variables
+
+# List of dicts with the images to provisione. See vars/main.yml examples.
+
+#docker_provisioner_images:
+
+# List of dicts with the containers to provisione. See vars/main.yml examples.
+
+#docker_provisioner_containers:
+
+# List of groups to add the provisioned containers. See vars/main.yml examples.
+
+#docker_provisioner_groups:

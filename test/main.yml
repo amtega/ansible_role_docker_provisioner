@@ -1,0 +1,7 @@
+---
+# Tasks for tesing role
+
+- name: test role
+  hosts: localhost
+  roles:
+    - docker_provisioner
