@@ -34,18 +34,11 @@
       label: "{{ container.name }}"
       loop_var: container
 
-  # We had to move the invocation of the docker inspect command into a bash
-  # script because it involves a command line parameter with {{ }}. Registering
-  # the results puts the command line params into invocation. Referencing the
-  # results variable fails because Ansible runs the invocation through jinja2
-  # template engine and the {{.NetworkSettings.IPAddress}} variable does not
-  # exist
-
   - block:
     - name: get containers ip addresses
-      local_action:
-        module: "shell"
-        args: "{{ role_path }}/files/docker_get_ip.sh {{ container.name }}"
+      shell: >-
+        docker inspect --format='{''{.NetworkSettings.IPAddress}''}'
+        {{ container.name }}
       register: docker_provisioner_get_ip_result
       when: >
         "{{ container.state | default(default_values.state) }}"
@@ -59,15 +52,16 @@
 
     - name: associate auth info / group info to containers
       add_host:
-        name: >
+        name: >-
           {{ container.1.name }}
         ansible_user: >-
           {{ container.1.ansible_user | default(default_values.ansible_user) }}
         ansible_password: >-
           {{ container.1.ansible_ssh_pass
-            | default(default_values.ansible_password }}
+            | default(default_values.ansible_password) }}
         groups: >-
           {{ docker_provisioner_groups
+            | default(docker_provisioner_default_groups)
             | union(container.1.groups
             | default(docker_provisioner_default_groups)) | join(',') }}
       when: >

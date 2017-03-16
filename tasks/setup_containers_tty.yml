@@ -7,7 +7,7 @@
     add_host:
       name: "{{ container.1.name }}"
       ansible_host: "{{ container.1.name }}"
-      docker_ip: "{{ docker_provisioner_ip_result.results[container.0].stdout }}"
+      docker_ip: "{{ docker_provisioner_get_ip_result.results[container.0].stdout }}"
       ansible_connection: docker
     when:
       - container.1.tty | default(default_values.tty)

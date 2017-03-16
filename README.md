@@ -1,20 +1,14 @@
-docker_provisioner
-==================
+# docker_provisioner
 
-This is an [Ansible](http://www.ansible.com) role to provisione docker images and
-containers.
+This is an [Ansible](http://www.ansible.com) role to provisione docker images and containers.
 
-Requirements
-------------
+## Requirements
 
 - Ansible >= 2.0
 
-Role Variables
---------------
+## Role Variables
 
-Here is a list of all the default variables for this role, which are also
-available in `defaults/main.yml`. The file `vars/main.yml` contains full
-examples of these variable structures.
+Here is a list of all the default variables for this role, which are also available in `defaults/main.yml`. The file `vars/main.yml` contains full examples of these variable structures.
 
 ```yaml
 ---
@@ -32,13 +26,11 @@ examples of these variable structures.
 #docker_provisioner_groups:
 ```
 
-Dependencies
-------------
+## Dependencies
 
 - docker_engine
 
-Example Playbook
-----------------
+## Example Playbook
 
 This is an example playbook:
 
@@ -50,20 +42,17 @@ This is an example playbook:
     - docker_provisioner
 ```
 
-Testing
--------
+## Testing
 
 ```shell
 $ cd docker_provisioner/test
 $ ansible-playbook main.yml
 ```
 
-License
--------
+## License
 
 Not defined.
 
-Author Information
-------------------
+## Author Information
 
-- Juan Antonio Valiño García (<juanval@edu.xunta.es>). Amtega - Xunta de Galicia
+- Juan Antonio Valiño García ([juanval@edu.xunta.es](mailto:juanval@edu.xunta.es)). Amtega - Xunta de Galicia

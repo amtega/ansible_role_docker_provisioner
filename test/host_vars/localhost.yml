@@ -1,0 +1,21 @@
+---
+# localhost variables used for testing
+
+# Test with several container using tty and ssh
+
+docker_provisioner_containers:
+  - name: "docker_provisioner_centos_6_tty"
+    image: "docker_provisioner_centos:6"
+    tty: true
+
+  - name: "docker_provisioner_centos_7_tty"
+    image: "docker_provisioner_centos:7"
+    tty: true
+
+  - name: "docker_provisioner_centos_6_ssh"
+    image: "docker_provisioner_centos:6"
+    tty: false
+
+  - name: "docker_provisioner_centos_7_ssh"
+    image: "docker_provisioner_centos:7"
+    tty: false
