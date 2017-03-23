@@ -1,0 +1,13 @@
+---
+# Centos 6 image
+
+docker_provisioner_default_image_centos_6:
+  name: "docker_provisioner_centos:6"
+  dockerfile: Dockerfile.centos_6
+  buildargs:
+    user: "{{ docker_provisioner_default_container.ansible_user }}"
+    password: "{{ docker_provisioner_default_container.ansible_password }}"
+  force: true
+  path: "{{ role_path }}/files"
+  rm: true
+  state: "present"

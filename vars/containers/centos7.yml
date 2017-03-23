@@ -1,0 +1,8 @@
+---
+# Centos 7 container
+
+docker_provisioner_default_container_centos_7:
+  name: "docker_provisioner_centos_7"
+  image: "docker_provisioner_centos:7"
+  volumes:
+    - /sys/fs/cgroup:/sys/fs/cgroup:ro

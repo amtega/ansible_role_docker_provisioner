@@ -2,12 +2,12 @@
 # Setup docker containers
 
 - block:
-  - name: setup docker containers
+  - name: start docker containers
     docker_container:
       name: >-
         {{ container.name }}
       image: >-
-        {{ container.image | default(default_values.image) }}
+        {{ container.image }}
       privileged: >-
         {{ container.privileged | default(default_values.privileged) }}
       state: >-
@@ -28,6 +28,8 @@
         {{ container.env | default(default_values.env) }}
       links: >-
         {{ container.links | default(default_values.links) }}
+      volumes: >-
+        {{ container.volumes | default(default_values.volumes) }}
     with_items: >
       {{ docker_provisioner_containers | default(default_containers) }}
     loop_control:

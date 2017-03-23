@@ -3,7 +3,7 @@
 
 - block:
 
-  - name: setup connection of docker containers that don't use tty
+  - name: setup containers ssh connection
     add_host:
       name: "{{ container.1.name }}"
       ansible_host: >-
@@ -22,7 +22,7 @@
       label: "{{ container.1.name }}"
       loop_var: container
 
-  - name: wait for ssh of the docker containers that don't use tty
+  - name: ensure that is possible to connect with ssh to docker containers
     wait_for:
       host: "{{ hostvars[container.name]['ansible_host'] }}"
       port: 22

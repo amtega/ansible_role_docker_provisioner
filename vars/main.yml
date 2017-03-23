@@ -4,7 +4,7 @@
 # Default image attributes (see docker_image module for details)
 
 docker_provisioner_default_image:
-  name: "centos:7"
+  name: ""
   dockerfile: "Dockerfile"
   buildargs: {}
   force: false
@@ -15,7 +15,7 @@ docker_provisioner_default_image:
 # Default container attributes (see docker_container module for details)
 
 docker_provisioner_default_container:
-  image: "centos:7"
+  image: ""
   privileged: true
   state: "started"
   restart: true
@@ -28,38 +28,19 @@ docker_provisioner_default_container:
   links: []
   ansible_user: "root"
   ansible_password: "root"
+  volumes: []
 
 # Default list of docker images
 
 docker_provisioner_default_images:
-  - name: "docker_provisioner_centos:6"
-    dockerfile: Dockerfile.centos_6
-    buildargs:
-      user: "{{ docker_provisioner_default_container.ansible_user }}"
-      password: "{{ docker_provisioner_default_container.ansible_password }}"
-    force: true
-    path: "{{ role_path }}/files"
-    rm: true
-    state: "present"
-
-  - name: "docker_provisioner_centos:7"
-    dockerfile: Dockerfile.centos_7
-    buildargs:
-      user: "{{ docker_provisioner_default_container.ansible_user }}"
-      password: "{{ docker_provisioner_default_container.ansible_password }}"
-    force: true
-    path: "{{ role_path }}/files"
-    rm: true
-    state: "present"
+  - "{{ docker_provisioner_default_image_centos_6 }}"
+  - "{{ docker_provisioner_default_image_centos_7 }}"
 
 # Default list of docker containers
 
 docker_provisioner_default_containers:
-  - name: "docker_provisioner_centos_6"
-    image: "docker_provisioner_centos:6"
-
-  - name: "docker_provisioner_centos_7"
-    image: "docker_provisioner_centos:7"
+  - "{{ docker_provisioner_default_container_centos_6 }}"
+  - "{{ docker_provisioner_default_container_centos_7 }}"
 
 # Groups to add in the docker provisioned containers
 

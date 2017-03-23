@@ -1,5 +1,13 @@
 ---
 # Role tasks
 
+- name: load default images and containers variables
+  include_vars: "{{ item }}"
+  with_fileglob:
+    - "{{ role_path }}/vars/images/*.yml"
+    - "{{ role_path }}/vars/containers/*.yml"
+  tags:
+    - always
+
 - include: setup_images.yml
 - include: setup_containers.yml

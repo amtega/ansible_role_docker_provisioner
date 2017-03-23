@@ -3,7 +3,7 @@
 
 - block:
 
-  - name: setup connection of docker containers that use tty
+  - name: setup containers tty
     add_host:
       name: "{{ container.1.name }}"
       ansible_host: "{{ container.1.name }}"
@@ -21,7 +21,7 @@
       label: "{{ container.1.name }}"
       loop_var: container
 
-  - name: ensure that is possible to connect to docker containers that use tty
+  - name: ensure that is possible to connect with tty to docker containers
     raw: "echo Docker contaimer is up"
     when:
       - item.tty | default(default_values.tty)
