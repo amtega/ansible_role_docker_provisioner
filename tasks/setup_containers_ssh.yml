@@ -11,11 +11,11 @@
       docker_ip: >-
         {{ docker_provisioner_get_ip_result.results[container.0].stdout }}
     with_indexed_items: >
-      {{ docker_provisioner_containers | default(default_containers) }}
+      {{ docker_provisioner_containers }}
     when:
-      - not container.1.tty | default(default_values.tty)
+      - not container.1.tty | default(default_options.tty)
       - >
-        "{{ container.1.state | default(default_values.state) }}"
+        "{{ container.1.state | default(default_options.state) }}"
           in ["present", "started"]
     changed_when: false
     loop_control:
@@ -30,12 +30,12 @@
       connect_timeout: 5
     changed_when: false
     when:
-      - not container.tty | default(default_values.tty)
+      - not container.tty | default(default_options.tty)
       - >
-        "{{ container.state | default(default_values.state) }}"
+        "{{ container.state | default(default_options.state) }}"
           in ["present", "started"]
     with_items: >
-      {{ docker_provisioner_containers | default(default_containers) }}
+      {{ docker_provisioner_containers }}
     loop_control:
       label: >-
         {{ container.name }}
@@ -43,8 +43,8 @@
       loop_var: container
 
   vars:
-    default_values: "{{ docker_provisioner_default_container }}"
-    default_containers: "{{ docker_provisioner_default_containers }}"
+    default_options: "{{ docker_provisioner_container_options }}"
+    default_containers: "{{ docker_provisioner_container_options }}"
   tags:
     - role::docker_provisioner
     - role::docker_provisioner::containers

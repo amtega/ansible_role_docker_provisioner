@@ -1,7 +1,75 @@
 ---
 # Tasks for tesing role
 
-- name: test role
+- name: test docker_provisioner role
   hosts: localhost
-  roles:
-    - docker_provisioner
+  pre_tasks:
+    - include_role:
+        name: docker_provisioner
+      vars:
+        test: "{{ docker_provisioner_image_options }}"
+        docker_provisioner_image_options: >
+          {{ test
+              | combine({'state': 'present', 'force': true }) }}
+
+  # roles:
+  #   - {{ role: docker_provisioner,
+  #        docker_provisioner_image_options: start_image_options,
+  #        docker_provisioner_container_options: start_container_options }}
+  #
+  #   - {{ role: docker_provisioner,
+  #        docker_provisioner_image_options: repeat_image_options,
+  #        docker_provisioner_container_options: repeat_container_options }}
+  #
+  #   - {{ role: docker_provisioner,
+  #        docker_provisioner_image_options: remove_image_options,
+  #        docker_provisioner_container_options: remove_container_options }}
+
+  # tasks:
+    # Setup a set of docker images and containers to begin the test. The images
+    # ared forced to be rebuilt. Containers are setup with tty and ssh variants
+    # and forced to be restarted.
+
+    # - name: setup docker images variables
+    #   set_fact:
+    #     docker_provisioner_images:
+    #       - >
+    #         {{ docker_provisioner_image_options_centos_6
+    #           | combine({ 'force': true }) }}
+    #       - >
+    #         {{ docker_provisioner_image_options_centos_7
+    #           | combine({ 'force': true }) }}
+    #
+    # - name: setip docker containers variables
+    #   set_fact:
+    #     docker_provisioner_containers:
+    #       - >
+    #         {{ docker_provisioner_container_options_centos_6
+    #           | combine({ 'name': 'docker_provisioner_centos_6_tty',
+    #                       'tty': true,
+    #                       'state': 'present',
+    #                       'restart': true }) }}"
+    #
+    #
+    # # - name: apply role
+    # #   include_role: docker_provisioner
+
+
+
+        # - "{{ docker_provisioner_container_options_centos_6
+        #     | combine({ 'name': 'docker_provisioner_centos_6_ssh',
+        #                 'tty': false,
+        #                 'state': 'present',
+        #                 'restart': true }) }}"
+        #
+        # - "{{ docker_provisioner_container_options_centos_7
+        #     | combine({ 'name': 'docker_provisioner_centos_7_tty',
+        #                 'tty': true,
+        #                 'state': 'present',
+        #                 'restart': true }) }}"
+        #
+        # - "{{ docker_provisioner_container_options_centos_7
+        #     | combine({ 'name': 'docker_provisioner_centos_7_ssh',
+        #                 'tty': false,
+        #                 'state': 'present',
+        #                 'restart': true }) }}"

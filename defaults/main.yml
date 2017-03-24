@@ -1,14 +1,42 @@
 ---
 # Role default lower priority variables
 
-# List of dicts with the images to provisione. See vars/main.yml examples.
+# List of dicts with the images to provisione. See the variable
+# docker_provisioner_image_options below for samples of the dict structure.
 
-#docker_provisioner_images:
+docker_provisioner_images: []
 
-# List of dicts with the containers to provisione. See vars/main.yml examples.
+# List of dicts with the containers to provisione. See the variable
+# docker_provisioner_containers_options below for samples of the dict structure.
 
-#docker_provisioner_containers:
+docker_provisioner_containers: []
 
-# List of groups to add the provisioned containers. See vars/main.yml examples.
+# Image options to apply if no other ones are specified in the specific image
+# dictionary of the docker_provisioner_images variable
 
-#docker_provisioner_groups:
+docker_provisioner_image_options:
+  name: "unnamed"
+  dockerfile: "Dockerfile"
+  buildargs: {}
+  path: "."
+  rm: true
+
+# Container options to apply if no other ones are specified in the specific
+# container dictionary of the docker_provisioner_containers variable
+
+docker_provisioner_container_options:
+  name: "unnamed"
+  image: ""
+  privileged: true
+  tls: true
+  stop_timeout: 1
+  tty: true
+  expose: ['1-65535']
+  command: ""
+  env: {}
+  links: []
+  ansible_user: "root"
+  ansible_password: "root"
+  volumes: []
+  groups:
+    - docker_provisioner_containers

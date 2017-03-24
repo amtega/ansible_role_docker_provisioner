@@ -9,3 +9,8 @@
 - Addded support for container volumes.
 - Fixed CentOS 7 image and container.
 - Create separated folders and files for images and containers defaults.
+
+## 2017-03-24
+
+- Improved default variables structure.
+- Improved documentation.

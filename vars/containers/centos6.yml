@@ -1,6 +1,0 @@
----
-# Centos 6 container
-
-docker_provisioner_default_container_centos_6:
-  name: "docker_provisioner_centos_6"
-  image: "docker_provisioner_centos:6"

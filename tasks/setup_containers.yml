@@ -9,29 +9,29 @@
       image: >-
         {{ container.image }}
       privileged: >-
-        {{ container.privileged | default(default_values.privileged) }}
+        {{ container.privileged | default(default_options.privileged) }}
       state: >-
-        {{ container.state | default(default_values.state) }}
+        {{ container.state | default(default_options.state) }}
       restart: >-
-        {{ container.restart | default(default_values.restart) }}
+        {{ container.restart | default(default_options.restart) }}
       tls: >-
-        {{ container.tls | default(default_values.tls) }}
+        {{ container.tls | default(default_options.tls) }}
       stop_timeout: >-
-        {{ container.stop_timeout | default(default_values.stop_timeout) }}
+        {{ container.stop_timeout | default(default_options.stop_timeout) }}
       tty: >-
-        {{ container.tty | default(default_values.tty) }}
+        {{ container.tty | default(default_options.tty) }}
       expose: >-
-        {{ container.expose | default(default_values.expose) }}
+        {{ container.expose | default(default_options.expose) }}
       command: >-
-        {{ container.command | default(default_values.command) }}
+        {{ container.command | default(default_options.command) }}
       env: >-
-        {{ container.env | default(default_values.env) }}
+        {{ container.env | default(default_options.env) }}
       links: >-
-        {{ container.links | default(default_values.links) }}
+        {{ container.links | default(default_options.links) }}
       volumes: >-
-        {{ container.volumes | default(default_values.volumes) }}
+        {{ container.volumes | default(default_options.volumes) }}
     with_items: >
-      {{ docker_provisioner_containers | default(default_containers) }}
+      {{ docker_provisioner_containers }}
     loop_control:
       label: "{{ container.name }}"
       loop_var: container
@@ -43,10 +43,10 @@
         {{ container.name }}
       register: docker_provisioner_get_ip_result
       when: >
-        "{{ container.state | default(default_values.state) }}"
+        "{{ container.state | default(default_options.state) }}"
           in ["present", "started"]
       with_items: >
-        {{ docker_provisioner_containers | default(default_containers) }}
+        {{ docker_provisioner_containers }}
       loop_control:
         label: "{{ container.name }}"
         loop_var: container
@@ -57,20 +57,17 @@
         name: >-
           {{ container.1.name }}
         ansible_user: >-
-          {{ container.1.ansible_user | default(default_values.ansible_user) }}
+          {{ container.1.ansible_user | default(default_options.ansible_user) }}
         ansible_password: >-
           {{ container.1.ansible_ssh_pass
-            | default(default_values.ansible_password) }}
+            | default(default_options.ansible_password) }}
         groups: >-
-          {{ docker_provisioner_groups
-            | default(docker_provisioner_default_groups)
-            | union(container.1.groups
-            | default(docker_provisioner_default_groups)) | join(',') }}
+          {{ container.1.groups | default(default_options.groups) }}
       when: >
-        "{{ container.state | default(default_values.state) }}"
+        "{{ container.state | default(default_options.state) }}"
           in ["present", "started"]
       with_indexed_items: >
-        {{ docker_provisioner_containers | default(default_containers) }}
+        {{ docker_provisioner_containers }}
       changed_when: false
       loop_control:
         label: "{{ container.1.name }}"
@@ -80,8 +77,8 @@
     - include: setup_containers_ssh.yml
 
   vars:
-    default_values: "{{ docker_provisioner_default_container }}"
-    default_containers: "{{ docker_provisioner_default_containers }}"
+    containers: "{{ docker_provisioner_containers }}"
+    default_options: "{{ docker_provisioner_container_options }}"
   tags:
     - role::docker_provisioner
     - role::docker_provisioner::containers

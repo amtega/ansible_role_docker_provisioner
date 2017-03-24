@@ -1,21 +1,17 @@
 ---
 # localhost variables used for testing
 
-# Test with several container using tty and ssh
+# Test with several images and containers using tty and ssh
 
-docker_provisioner_containers:
-  - name: "docker_provisioner_centos_6_tty"
-    image: "docker_provisioner_centos:6"
-    tty: true
+docker_provisioner_images: "{{ docker_provisioner_default_images }}"
 
-  - name: "docker_provisioner_centos_7_tty"
-    image: "docker_provisioner_centos:7"
-    tty: true
-
-  - name: "docker_provisioner_centos_6_ssh"
-    image: "docker_provisioner_centos:6"
-    tty: false
-
-  - name: "docker_provisioner_centos_7_ssh"
-    image: "docker_provisioner_centos:7"
-    tty: false
+#
+# docker_provisioner_containers:
+#   - "{{ docker_provisioner_container_options_centos_6
+#       | combine({ 'name': 'docker_provisioner_centos_6_tty', 'tty': true }) }}"
+#   - "{{ docker_provisioner_container_options_centos_6
+#       | combine({ 'name': 'docker_provisioner_centos_6_ssh', 'tty': false }) }}"
+#   - "{{ docker_provisioner_container_options_centos_7
+#       | combine({ 'name': 'docker_provisioner_centos_7_tty', 'tty': true }) }}"
+#   - "{{ docker_provisioner_container_options_centos_7
+#       | combine({ 'name': 'docker_provisioner_centos_7_ssh', 'tty': false }) }}"

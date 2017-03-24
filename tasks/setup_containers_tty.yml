@@ -10,13 +10,13 @@
       docker_ip: "{{ docker_provisioner_get_ip_result.results[container.0].stdout }}"
       ansible_connection: docker
     when:
-      - container.1.tty | default(default_values.tty)
+      - container.1.tty | default(default_options.tty)
       - >
-        "{{ container.1.state | default(default_values.state) }}"
+        "{{ container.1.state | default(default_options.state) }}"
           in ["present", "started"]
     changed_when: false
     with_indexed_items: >
-      {{ docker_provisioner_containers | default(default_containers) }}
+      {{ docker_provisioner_containers }}
     loop_control:
       label: "{{ container.1.name }}"
       loop_var: container
@@ -24,20 +24,20 @@
   - name: ensure that is possible to connect with tty to docker containers
     raw: "echo Docker contaimer is up"
     when:
-      - item.tty | default(default_values.tty)
+      - item.tty | default(default_options.tty)
       - >
-        "{{ item.state | default(default_values.state) }}"
+        "{{ item.state | default(default_options.state) }}"
           in ["present", "started"]
     changed_when: false
     delegate_to: "{{ item.name }}"
     with_items: >
-      {{ docker_provisioner_containers | default(default_containers) }}
+      {{ docker_provisioner_containers }}
     loop_control:
       label: "{{ item.name }}"
 
   vars:
-    default_values: "{{ docker_provisioner_default_container }}"
-    default_containers: "{{ docker_provisioner_default_containers }}"
+    default_options: "{{ docker_provisioner_container_options }}"
+    default_containers: "{{ docker_provisioner_container_options }}"
   tags:
     - role::docker_provisioner
     - role::docker_provisioner::containers

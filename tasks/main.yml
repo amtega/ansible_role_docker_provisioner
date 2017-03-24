@@ -1,13 +1,21 @@
 ---
 # Role tasks
 
-- name: load default images and containers variables
-  include_vars: "{{ item }}"
-  with_fileglob:
-    - "{{ role_path }}/vars/images/*.yml"
-    - "{{ role_path }}/vars/containers/*.yml"
+- name: load default images options
+  include_vars:
+    dir: "{{ role_path }}/defaults/images"
+    name: docker_provisioner_default_images
   tags:
-    - always
+    - role::docker_provisioner
+    - role::docker_provisioner::images
+
+- name: load default containers options
+  include_vars:
+    dir: "{{ role_path }}/defaults/containers"
+    name: docker_provisioner_default_containers
+  tags:
+    - role::docker_provisioner
+    - role::docker_provisioner::containers
 
 - include: setup_images.yml
-- include: setup_containers.yml
+# - include: setup_containers.yml

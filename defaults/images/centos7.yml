@@ -1,13 +1,9 @@
 ---
 # Centos 7 image
 
-docker_provisioner_image_options_centos_7:
-  name: "docker_provisioner_centos:7"
+"docker_provisioner_centos:7":
   dockerfile: Dockerfile.centos_7
   buildargs:
     user: "{{ docker_provisioner_container_options.ansible_user }}"
     password: "{{ docker_provisioner_container_options.ansible_password }}"
-  force: true
   path: "{{ role_path }}/files"
-  rm: true
-  state: present

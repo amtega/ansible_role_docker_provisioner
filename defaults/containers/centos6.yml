@@ -1,0 +1,5 @@
+---
+# Centos 6 container
+
+"docker_provisioner_centos:6":
+  image: "docker_provisioner_centos:6"
