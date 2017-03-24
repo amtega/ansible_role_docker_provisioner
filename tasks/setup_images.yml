@@ -1,24 +1,30 @@
 ---
 # Setup docker images
-- debug: var=test
-- debug: var=docker_provisioner_images
-- debug: var=docker_provisioner_image_options
 
 - name: setup docker images
   docker_image:
     name: "{{ name }}"
-    dockerfile: "{{ images[name].dockerfile | default(defaults.dockerfile) }}"
-    buildargs: "{{ images[name].buildargs | default(defaults.buildargs) }}"
-    force: "{{ images[name].force | default(defaults.force) }}"
-    path: "{{ images[name].path | default(defaults.path) }}"
-    rm: "{{ images[name].rm | default(defaults.rm) }}"
-    state: "{{ images[name].state | default(defaults.state) }}"
-  with_items: "{{ images }}"
+    dockerfile: >-
+      {{ docker_provisioner_images[name].dockerfile
+        | default(docker_provisioner_image_dockerfile) }}
+    buildargs: >-
+      {{ docker_provisioner_images[name].buildargs
+        | default(docker_provisioner_image_buildargs) }}
+    force: >-
+      {{ docker_provisioner_images[name].force
+        | default(docker_provisioner_image_force) }}
+    path: >-
+      {{ docker_provisioner_images[name].path
+        | default(docker_provisioner_image_path) }}
+    rm: >-
+      {{ docker_provisioner_images[name].rm
+        | default(docker_provisioner_image_rm) }}
+    state: >-
+      {{ docker_provisioner_images[name].state
+        | default(docker_provisioner_image_state) }}
+  with_items: "{{ docker_provisioner_images }}"
   loop_control:
     loop_var: name
-  vars:
-    images: "{{ docker_provisioner_images }}"
-    defaults: "{{ docker_provisioner_image_options }}"
   tags:
     - role::docker_provisioner
     - role::docker_provisioner::images

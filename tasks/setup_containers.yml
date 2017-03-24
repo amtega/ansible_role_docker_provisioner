@@ -2,83 +2,90 @@
 # Setup docker containers
 
 - block:
-  - name: start docker containers
+  - name: setup docker containers
     docker_container:
       name: >-
-        {{ container.name }}
+        {{ name }}
       image: >-
-        {{ container.image }}
+        {{ docker_provisioner_containers[name].image }}
       privileged: >-
-        {{ container.privileged | default(default_options.privileged) }}
+        {{ docker_provisioner_containers[name].privileged
+          | default(docker_provisioner_container_privileged) }}
       state: >-
-        {{ container.state | default(default_options.state) }}
+        {{ docker_provisioner_containers[name].state
+          | default(docker_provisioner_container_state) }}
       restart: >-
-        {{ container.restart | default(default_options.restart) }}
+        {{ docker_provisioner_containers[name].restart
+          | default(docker_provisioner_container_restart) }}
       tls: >-
-        {{ container.tls | default(default_options.tls) }}
+        {{ docker_provisioner_containers[name].tls
+          | default(docker_provisioner_container_tls) }}
       stop_timeout: >-
-        {{ container.stop_timeout | default(default_options.stop_timeout) }}
+        {{ docker_provisioner_containers[name].stop_timeout
+          | default(docker_provisioner_container_stop_timeout) }}
       tty: >-
-        {{ container.tty | default(default_options.tty) }}
+        {{ docker_provisioner_containers[name].tty
+          | default(docker_provisioner_container_tty) }}
       expose: >-
-        {{ container.expose | default(default_options.expose) }}
+        {{ docker_provisioner_containers[name].expose
+          | default(docker_provisioner_container_expose) }}
       command: >-
-        {{ container.command | default(default_options.command) }}
+        {{ docker_provisioner_containers[name].command
+          | default(docker_provisioner_container_command) }}
       env: >-
-        {{ container.env | default(default_options.env) }}
+        {{ docker_provisioner_containers[name].env
+          | default(docker_provisioner_container_env) }}
       links: >-
-        {{ container.links | default(default_options.links) }}
+        {{ docker_provisioner_containers[name].links
+          | default(docker_provisioner_container_links) }}
       volumes: >-
-        {{ container.volumes | default(default_options.volumes) }}
+        {{ docker_provisioner_containers[name].volumes
+          | default(docker_provisioner_container_volumes) }}
     with_items: >
       {{ docker_provisioner_containers }}
     loop_control:
-      label: "{{ container.name }}"
-      loop_var: container
+      loop_var: name
 
   - block:
     - name: get containers ip addresses
       shell: >-
         docker inspect --format='{''{.NetworkSettings.IPAddress}''}'
-        {{ container.name }}
+        {{ name }}
       register: docker_provisioner_get_ip_result
       when: >
-        "{{ container.state | default(default_options.state) }}"
-          in ["present", "started"]
+        "{{ docker_provisioner_containers[name].state
+          | default(docker_provisioner_container_state) }}" == "started"
       with_items: >
         {{ docker_provisioner_containers }}
       loop_control:
-        label: "{{ container.name }}"
-        loop_var: container
+        loop_var: name
       changed_when: false
 
     - name: associate auth info / group info to containers
       add_host:
         name: >-
-          {{ container.1.name }}
+          {{ name }}
         ansible_user: >-
-          {{ container.1.ansible_user | default(default_options.ansible_user) }}
+          {{ docker_provisioner_containers[name].ansible_user
+            | default(docker_provisioner_container_ansible_user) }}
         ansible_password: >-
-          {{ container.1.ansible_ssh_pass
-            | default(default_options.ansible_password) }}
+          {{ docker_provisioner_containers[name].ansible_password
+            | default(docker_provisioner_container_ansible_password) }}
         groups: >-
-          {{ container.1.groups | default(default_options.groups) }}
+          {{ docker_provisioner_containers[name].groups
+            | default(docker_provisioner_container_groups) }}
       when: >
-        "{{ container.state | default(default_options.state) }}"
-          in ["present", "started"]
-      with_indexed_items: >
+        "{{ docker_provisioner_containers[name].state
+          | default(docker_provisioner_container_state) }}" == "started"
+      with_items: >
         {{ docker_provisioner_containers }}
       changed_when: false
       loop_control:
-        label: "{{ container.1.name }}"
-        loop_var: container
+        loop_var: name
 
     - include: setup_containers_tty.yml
     - include: setup_containers_ssh.yml
 
-  vars:
-    containers: "{{ docker_provisioner_containers }}"
-    default_options: "{{ docker_provisioner_container_options }}"
   tags:
     - role::docker_provisioner
     - role::docker_provisioner::containers

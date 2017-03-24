@@ -12,5 +12,6 @@
 
 ## 2017-03-24
 
-- Improved default variables structure.
+- Refactored default variables structure.
+- Improved tests.
 - Improved documentation.

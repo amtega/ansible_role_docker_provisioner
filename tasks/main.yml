@@ -18,4 +18,4 @@
     - role::docker_provisioner::containers
 
 - include: setup_images.yml
-# - include: setup_containers.yml
+- include: setup_containers.yml
