@@ -1,0 +1,31 @@
+---
+# Load default images options
+
+- block:
+
+  - name: search default containers
+    find:
+      paths: "{{ role_path }}/defaults/containers"
+      patterns: "*.yml"
+    register: docker_provisioner_search_default_containers_result
+
+  - name: load default containers
+    include_vars:
+      file: "{{ file.path }}"
+      name: docker_provisioner_default_container
+    with_items: "{{ docker_provisioner_search_default_containers_result.files }}"
+    loop_control:
+      label: "{{ file.path }}"
+      loop_var: file
+    register: docker_provisioner_load_default_containers_result
+
+  - name: setup fact with default containers
+    set_fact:
+      docker_provisioner_default_containers: >-
+        {{ docker_provisioner_load_default_containers_result.results
+          | map(attribute="ansible_facts.docker_provisioner_default_container")
+          | list }}
+
+  tags:
+    - role::docker_provisioner
+    - role::docker_provisioner::containers

@@ -15,3 +15,9 @@
 - Refactored default variables structure.
 - Improved tests.
 - Improved documentation.
+
+## 2017-03-27
+
+- Refactored config variables to support random container names.
+- Improved tests.
+- Improved label during container setup

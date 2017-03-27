@@ -2,86 +2,92 @@
 # Setup docker containers
 
 - block:
+
   - name: setup docker containers
     docker_container:
       name: >-
-        {{ name }}
+        {{ container.name }}
       image: >-
-        {{ docker_provisioner_containers[name].image }}
+        {{ container.image }}
       privileged: >-
-        {{ docker_provisioner_containers[name].privileged
+        {{ container.privileged
           | default(docker_provisioner_container_privileged) }}
       state: >-
-        {{ docker_provisioner_containers[name].state
+        {{ container.state
           | default(docker_provisioner_container_state) }}
       restart: >-
-        {{ docker_provisioner_containers[name].restart
+        {{ container.restart
           | default(docker_provisioner_container_restart) }}
       tls: >-
-        {{ docker_provisioner_containers[name].tls
+        {{ container.tls
           | default(docker_provisioner_container_tls) }}
       stop_timeout: >-
-        {{ docker_provisioner_containers[name].stop_timeout
+        {{ container.stop_timeout
           | default(docker_provisioner_container_stop_timeout) }}
       tty: >-
-        {{ docker_provisioner_containers[name].tty
+        {{ container.tty
           | default(docker_provisioner_container_tty) }}
       expose: >-
-        {{ docker_provisioner_containers[name].expose
+        {{ container.expose
           | default(docker_provisioner_container_expose) }}
       command: >-
-        {{ docker_provisioner_containers[name].command
+        {{ container.command
           | default(docker_provisioner_container_command) }}
       env: >-
-        {{ docker_provisioner_containers[name].env
+        {{ container.env
           | default(docker_provisioner_container_env) }}
       links: >-
-        {{ docker_provisioner_containers[name].links
+        {{ container.links
           | default(docker_provisioner_container_links) }}
       volumes: >-
-        {{ docker_provisioner_containers[name].volumes
+        {{ container.volumes
           | default(docker_provisioner_container_volumes) }}
     with_items: >
       {{ docker_provisioner_containers }}
     loop_control:
-      loop_var: name
+      label: >-
+        {{ container.name + ' '
+          + container.state | default(docker_provisioner_container_state) }}
+      loop_var: container
 
   - block:
     - name: get containers ip addresses
       shell: >-
         docker inspect --format='{''{.NetworkSettings.IPAddress}''}'
-        {{ name }}
+        {{ container.name }}
       register: docker_provisioner_get_ip_result
       when: >
-        "{{ docker_provisioner_containers[name].state
+        "{{ container.state
           | default(docker_provisioner_container_state) }}" == "started"
       with_items: >
         {{ docker_provisioner_containers }}
       loop_control:
-        loop_var: name
+        label: "{{ container.name }}"
+        loop_var: container
       changed_when: false
 
     - name: associate auth info / group info to containers
       add_host:
         name: >-
-          {{ name }}
+          {{ container.name }}
         ansible_user: >-
-          {{ docker_provisioner_containers[name].ansible_user
+          {{ container.ansible_user
             | default(docker_provisioner_container_ansible_user) }}
         ansible_password: >-
-          {{ docker_provisioner_containers[name].ansible_password
+          {{ container.ansible_password
             | default(docker_provisioner_container_ansible_password) }}
         groups: >-
-          {{ docker_provisioner_containers[name].groups
+          {{ container.groups
             | default(docker_provisioner_container_groups) }}
       when: >
-        "{{ docker_provisioner_containers[name].state
+        "{{ container.state
           | default(docker_provisioner_container_state) }}" == "started"
       with_items: >
         {{ docker_provisioner_containers }}
       changed_when: false
       loop_control:
-        loop_var: name
+        label: "{{ container.name }}"
+        loop_var: container
 
     - include: setup_containers_tty.yml
     - include: setup_containers_ssh.yml

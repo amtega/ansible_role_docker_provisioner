@@ -3,28 +3,29 @@
 
 - name: setup docker images
   docker_image:
-    name: "{{ name }}"
+    name: "{{ image.name }}"
     dockerfile: >-
-      {{ docker_provisioner_images[name].dockerfile
+      {{ image.dockerfile
         | default(docker_provisioner_image_dockerfile) }}
     buildargs: >-
-      {{ docker_provisioner_images[name].buildargs
+      {{ image.buildargs
         | default(docker_provisioner_image_buildargs) }}
     force: >-
-      {{ docker_provisioner_images[name].force
+      {{ image.force
         | default(docker_provisioner_image_force) }}
     path: >-
-      {{ docker_provisioner_images[name].path
+      {{ image.path
         | default(docker_provisioner_image_path) }}
     rm: >-
-      {{ docker_provisioner_images[name].rm
+      {{ image.rm
         | default(docker_provisioner_image_rm) }}
     state: >-
-      {{ docker_provisioner_images[name].state
+      {{ image.state
         | default(docker_provisioner_image_state) }}
   with_items: "{{ docker_provisioner_images }}"
   loop_control:
-    loop_var: name
+    label: "{{ image.name }}"
+    loop_var: image
   tags:
     - role::docker_provisioner
     - role::docker_provisioner::images

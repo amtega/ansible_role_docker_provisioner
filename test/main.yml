@@ -27,11 +27,19 @@
           vars:
             docker_provisioner_container_tty: true
 
+        - name: save fact with provisioned containers for later cleanup
+          set_fact:
+            tty_containers: "{{ docker_provisioner_default_containers }}"
+
         - name: test ssh containers provisioning
           include_role:
             name: docker_provisioner
           vars:
             docker_provisioner_container_tty: false
+
+        - name: save fact with provisioned containers for later cleanup
+          set_fact:
+             ssh_containers: "{{ docker_provisioner_default_containers }}"
 
         vars:
           docker_provisioner_containers: >
@@ -40,10 +48,11 @@
           docker_provisioner_container_restart: true
 
       always:
+
         # Cleanup testing containers
         - include_role:
             name: docker_provisioner
           vars:
             docker_provisioner_containers: >
-                {{ docker_provisioner_default_containers }}
+              {{ tty_containers + ssh_containers }}
             docker_provisioner_container_state: absent
