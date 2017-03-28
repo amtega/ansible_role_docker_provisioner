@@ -3,7 +3,9 @@
 
 - name: test docker_provisioner role
   hosts: localhost
+
   tasks:
+
     - block:
 
       - name: cleanup log file
@@ -13,6 +15,7 @@
           force: no
 
       # Test image provisioning
+
       - include_role:
           name: docker_provisioner
         vars:
@@ -21,6 +24,7 @@
           docker_provisioner_image_force: true
 
       # Test container provisioning
+
       - block:
         - include_role:
             name: docker_provisioner
@@ -50,6 +54,7 @@
       always:
 
         # Cleanup testing containers
+
         - include_role:
             name: docker_provisioner
           vars:
