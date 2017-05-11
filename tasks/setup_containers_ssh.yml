@@ -42,8 +42,9 @@
       {{ docker_provisioner_containers }}
     loop_control:
       label: >-
-        {{ container.name }}
-        {{ hostvars[container.name]['ansible_host'] | default('') }}
+        {{ container.name
+          + " "
+          + hostvars[container.name]['ansible_host'] | default('') }}
       loop_var: container
 
   tags:

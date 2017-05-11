@@ -3,6 +3,15 @@
 
 - block:
 
+  # We need to setup this fact to ensure proper interaction with the
+  # randomize_names filter. It the fact is not setup each role execution could
+  # lead to a new random name generation every time the variable value is
+  # rendered.
+
+  - name: setup fact with docker provisioner containers
+    set_fact:
+      docker_provisioner_containers: "{{ docker_provisioner_containers }}"
+
   - name: setup docker containers
     docker_container:
       name: >-
@@ -46,51 +55,53 @@
       {{ docker_provisioner_containers }}
     loop_control:
       label: >-
-        {{ container.name + ' '
+        {{ container.name
+          + " "
           + container.state | default(docker_provisioner_container_state) }}
       loop_var: container
 
-  - block:
-    - name: get containers ip addresses
-      shell: >-
-        docker inspect --format='{''{.NetworkSettings.IPAddress}''}'
+  - name: get containers ip addresses
+    shell: >-
+      docker inspect --format='{''{.NetworkSettings.IPAddress}''}'
+      {{ container.name }}
+    register: docker_provisioner_get_ip_result
+    when: >-
+      "{{ container.state
+        | default(docker_provisioner_container_state) }}" == "started"
+    with_items: >
+      {{ docker_provisioner_containers }}
+    loop_control:
+      label: >-
         {{ container.name }}
-      register: docker_provisioner_get_ip_result
-      when: >
-        "{{ container.state
-          | default(docker_provisioner_container_state) }}" == "started"
-      with_items: >
-        {{ docker_provisioner_containers }}
-      loop_control:
-        label: "{{ container.name }}"
-        loop_var: container
-      changed_when: false
+      loop_var: container
+    changed_when: false
 
-    - name: associate auth info / group info to containers
-      add_host:
-        name: >-
-          {{ container.name }}
-        ansible_user: >-
-          {{ container.ansible_user
-            | default(docker_provisioner_container_ansible_user) }}
-        ansible_password: >-
-          {{ container.ansible_password
-            | default(docker_provisioner_container_ansible_password) }}
-        groups: >-
-          {{ container.groups
-            | default(docker_provisioner_container_groups) }}
-      when: >
-        "{{ container.state
-          | default(docker_provisioner_container_state) }}" == "started"
-      with_items: >
-        {{ docker_provisioner_containers }}
-      changed_when: false
-      loop_control:
-        label: "{{ container.name }}"
-        loop_var: container
+  - name: associate auth info / group info to containers
+    add_host:
+      name: >-
+        {{ container.name }}
+      ansible_user: >-
+        {{ container.ansible_user
+          | default(docker_provisioner_container_ansible_user) }}
+      ansible_password: >-
+        {{ container.ansible_password
+          | default(docker_provisioner_container_ansible_password) }}
+      groups: >-
+        {{ container.groups
+          | default(docker_provisioner_container_groups) }}
+    when: >
+      "{{ container.state
+        | default(docker_provisioner_container_state) }}" == "started"
+    with_items: >
+      {{ docker_provisioner_containers }}
+    changed_when: false
+    loop_control:
+      label: >-
+        {{ container.name }}
+      loop_var: container
 
-    - include: setup_containers_tty.yml
-    - include: setup_containers_ssh.yml
+  - include: setup_containers_tty.yml
+  - include: setup_containers_ssh.yml
 
   tags:
     - role::docker_provisioner

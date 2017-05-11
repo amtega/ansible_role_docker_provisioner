@@ -1,5 +1,5 @@
 ---
 # Centos 6 container
 
-name: "{{ 'centos_6_%s' | format(99999 | random) }}"
+name: centos_6
 image: centos_6

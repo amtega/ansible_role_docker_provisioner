@@ -21,3 +21,11 @@
 - Refactored config variables to support random container names.
 - Improved tests.
 - Improved label during container setup
+
+## 2017-05-08
+
+- Added role variables to decouple random name generation
+
+## 2017-05-12
+
+- Refactored random container name feature.
