@@ -22,9 +22,7 @@ docker_provisioner_images: []
 #   tls: true
 #   stop_timeout: 1
 #   tty: true
-#   expose: ['1-65535']
-#   command: ""
-#   env: {}
+#   expose: ['1-65535']are added toe
 #   links: []
 #   restart: false
 #   volumes: [] }
@@ -38,6 +36,7 @@ docker_provisioner_containers: []
 docker_provisioner_image_name: ""
 docker_provisioner_image_dockerfile: Dockerfile
 docker_provisioner_image_buildargs: {}
+docker_provisioner_image_force: false
 docker_provisioner_image_path: .
 docker_provisioner_image_rm: true
 
