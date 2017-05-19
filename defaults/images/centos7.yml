@@ -1,9 +1,0 @@
----
-# Centos 7 image
-
-name: centos_7
-dockerfile: Dockerfile.centos_7
-buildargs:
-  user: "{{ docker_provisioner_container_ansible_user }}"
-  password: "{{ docker_provisioner_container_ansible_password }}"
-path: "{{ role_path }}/files"

@@ -3,16 +3,12 @@
 
 - block:
 
-  # We need to setup this fact to ensure proper interaction with the
-  # randomize_names filter. It the fact is not setup each role execution could
-  # lead to a new random name generation every time the variable value is
-  # rendered.
-
-  - name: setup fact with docker provisioner images
+  - name: create fact for deployed images
     set_fact:
-      docker_provisioner_images: "{{ docker_provisioner_images }}"
+      docker_provisioner_deployed_images: >-
+        {{ docker_provisioner_images }}
 
-  - name: setup docker images
+  - name: deploy docker images
     docker_image:
       name: "{{ image.name }}"
       dockerfile: >-
@@ -33,11 +29,11 @@
       state: >-
         {{ image.state
           | default(docker_provisioner_image_state) }}
-    with_items: "{{ docker_provisioner_images }}"
+    with_items: "{{ docker_provisioner_deployed_images }}"
     loop_control:
       label: "{{ image.name }}"
       loop_var: image
 
   tags:
     - role::docker_provisioner
-    - role::docker_provisioner::containers
+    - role::docker_provisioner::images

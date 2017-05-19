@@ -3,7 +3,12 @@
 
 - block:
 
-  - name: setup docker containers
+  - name: create fact for deployed containers
+    set_fact:
+      docker_provisioner_deployed_containers: >-
+        {{ docker_provisioner_containers }}
+
+  - name: deploy docker containers
     docker_container:
       name: >-
         {{ container.name }}
@@ -43,7 +48,7 @@
         {{ container.volumes
           | default(docker_provisioner_container_volumes) }}
     with_items: >
-      {{ docker_provisioner_containers }}
+      {{ docker_provisioner_deployed_containers }}
     loop_control:
       label: >-
         {{ container.name
@@ -60,7 +65,7 @@
       "{{ container.state
         | default(docker_provisioner_container_state) }}" == "started"
     with_items: >
-      {{ docker_provisioner_containers }}
+      {{ docker_provisioner_deployed_containers }}
     loop_control:
       label: "{{ container.name }}"
       loop_var: container
@@ -83,7 +88,7 @@
       "{{ container.state
         | default(docker_provisioner_container_state) }}" == "started"
     with_items: >
-      {{ docker_provisioner_containers }}
+      {{ docker_provisioner_deployed_containers }}
     changed_when: false
     loop_control:
       label: >-

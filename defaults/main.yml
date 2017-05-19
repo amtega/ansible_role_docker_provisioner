@@ -10,7 +10,20 @@
 #   path: .
 #   rm: true }
 
-docker_provisioner_images: []
+docker_provisioner_images:
+  - name: centos_6
+    dockerfile: Dockerfile.centos_6
+    buildargs:
+      user: "{{ docker_provisioner_container_ansible_user }}"
+      password: "{{ docker_provisioner_container_ansible_password }}"
+    path: "{{ role_path }}/files"
+
+  - name: centos_7
+    dockerfile: Dockerfile.centos_7
+    buildargs:
+      user: "{{ docker_provisioner_container_ansible_user }}"
+      password: "{{ docker_provisioner_container_ansible_password }}"
+    path: "{{ role_path }}/files"
 
 # List of dicts with the containers to provisione. The dicts must have the
 # following values ( see docker_container module documentation for detais of each
@@ -27,7 +40,14 @@ docker_provisioner_images: []
 #   restart: false
 #   volumes: [] }
 
-docker_provisioner_containers: []
+docker_provisioner_containers:
+  - name: centos_6
+    image: centos_6
+
+  - name: centos_7
+    image: centos_7
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
 # Image options to apply if no other ones are specified in the specific
 # image dictionary of the docker_provisioner_images variable. See

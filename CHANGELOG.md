@@ -35,3 +35,7 @@
 - Moved random container name to docker_role_tester role.
 - Added missing image parameter into defaults/main.yml
 - Handled known_hosts entries of provisioned containers.
+
+## 2017-05-19
+
+- Refactored default images/containers functionality.
