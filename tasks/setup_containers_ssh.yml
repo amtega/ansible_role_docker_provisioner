@@ -27,7 +27,8 @@
 
   - name: remove ssh known_hosts entry for containers
     known_hosts:
-      name: "{{ docker_provisioner_get_ip_result.results[container.0].stdout }}"
+      name: >-
+        {{ docker_provisioner_get_ip_result.results[container.0]['stdout'] }}
       state: absent
     when:
         - >
@@ -37,34 +38,36 @@
           "{{ container.1.state
             | default(docker_provisioner_container_state) }}" == "started"
     with_indexed_items: >
-      {{ docker_provisioner_deployed_containers | list }}
+      {{ docker_provisioner_deployed_containers }}
     loop_control:
       label: >-
         {{ container.1.name }}
-        {{ docker_provisioner_get_ip_result.results[container.0].stdout }}
+        {{ docker_provisioner_get_ip_result.results[container.0]['stdout']
+          | default('') }}
       loop_var: container
 
   - name: ensure that is possible to connect with ssh to docker containers
     wait_for:
-      host: "{{ hostvars[container.name]['ansible_host'] }}"
+      host: "{{ hostvars[container.1.name]['ansible_host'] }}"
       port: 22
       timeout: 60
       connect_timeout: 5
     changed_when: false
     when:
       - >
-        not container.tty
+        not container.1.tty
           | default(docker_provisioner_container_tty)
       - >
-        "{{ container.state
+        "{{ container.1.state
           | default(docker_provisioner_container_state) }}" == "started"
-    with_items: >
+    with_indexed_items: >
       {{ docker_provisioner_deployed_containers }}
     loop_control:
       label: >-
-        {{ container.name
+        {{ container.1.name
           + " "
-          + hostvars[container.name]['ansible_host'] | default('') }}
+          +  docker_provisioner_get_ip_result.results[container.0]['stdout']
+            | default('') }}
       loop_var: container
 
   tags:

@@ -20,6 +20,9 @@
       state: >-
         {{ container.state
           | default(docker_provisioner_container_state) }}
+      recreate: >-
+        {{ container.recreate
+          | default(docker_provisioner_container_recreate) }}
       restart: >-
         {{ container.restart
           | default(docker_provisioner_container_restart) }}
@@ -82,8 +85,8 @@
         {{ container.ansible_password
           | default(docker_provisioner_container_ansible_password) }}
       groups: >-
-        {{ container.groups
-          | default(docker_provisioner_container_groups) }}
+        {{ container.groups | default([])
+          + docker_provisioner_container_groups }}
     when: >
       "{{ container.state
         | default(docker_provisioner_container_state) }}" == "started"
