@@ -12,7 +12,7 @@
         {{ docker_provisioner_get_ip_result.results[container.0].stdout }}
       ansible_connection: ssh
     with_indexed_items: >
-      {{ docker_provisioner_deployed_containers | list }}
+      {{ docker_provisioner_containers | list }}
     when:
       - >
         not container.1.tty
@@ -38,7 +38,7 @@
           "{{ container.1.state
             | default(docker_provisioner_container_state) }}" == "started"
     with_indexed_items: >
-      {{ docker_provisioner_deployed_containers }}
+      {{ docker_provisioner_containers }}
     loop_control:
       label: >-
         {{ container.1.name }}
@@ -61,7 +61,7 @@
         "{{ container.1.state
           | default(docker_provisioner_container_state) }}" == "started"
     with_indexed_items: >
-      {{ docker_provisioner_deployed_containers }}
+      {{ docker_provisioner_containers }}
     loop_control:
       label: >-
         {{ container.1.name

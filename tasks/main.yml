@@ -1,22 +1,6 @@
 ---
 # Role tasks
 
-# - name: load default_images
-#   include: load_default_images.yml
-#   static: no
-#   when: docker_provisioner_default_images | default([]) | length == 0
-#   tags:
-#     - role::docker_provisioner
-#     - role::docker_provisioner::images
-#
-# - name: load default containers
-#   include: load_default_containers.yml
-#   static: no
-#   when: docker_provisioner_default_containers | default([]) | length == 0
-#   tags:
-#     - role::docker_provisioner
-#     - role::docker_provisioner::containers
-
 - name: setup images
   include: setup_images.yml
   static: no
