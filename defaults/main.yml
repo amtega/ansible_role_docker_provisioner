@@ -58,10 +58,7 @@ docker_provisioner_container_recreate: false
 docker_provisioner_container_restart: false
 docker_provisioner_container_volumes: []
 
-# The following are ansible specific options to apply if no other ones are
-# specified in the specific container dictionary of the
-# docker_provisioner_containers variable.
-#
+
 # Theses variables set the ansible user, password to connect the
 # containers. Also, variable docker_provisioner_container_groups contains a
 # list of ansible groups where to add the provisioned containers.
@@ -69,3 +66,9 @@ docker_provisioner_container_volumes: []
 docker_provisioner_container_ansible_user: root
 docker_provisioner_container_ansible_password: root
 docker_provisioner_container_groups: ['docker_provisioner_containers']
+
+# If defined, this variable tells to role to create a minimal inventory file
+# containing the deployed containers. Be warned that auth info is contained in
+# clear text in this file
+
+#docker_provisioner_inventory:

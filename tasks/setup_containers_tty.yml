@@ -15,8 +15,8 @@
         container.tty
           | default(docker_provisioner_container_tty)
       - >
-        "{{ container.state
-          | default(docker_provisioner_container_state) }}" == "started"
+        container.state
+          | default(docker_provisioner_container_state) == "started"
     changed_when: false
     with_indexed_items: "{{ docker_provisioner_containers }}"
     loop_control:
@@ -30,8 +30,8 @@
         item.tty
           | default(docker_provisioner_container_tty)
       - >
-        "{{ item.state
-          | default(docker_provisioner_container_state) }}" == "started"
+        item.state
+          | default(docker_provisioner_container_state) == "started"
     changed_when: false
     delegate_to: "{{ item.name }}"
     with_items: "{{ docker_provisioner_containers }}"

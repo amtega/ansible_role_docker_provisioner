@@ -60,8 +60,8 @@
       {{ container.name }}
     register: docker_provisioner_get_ip_result
     when: >-
-      "{{ container.state
-        | default(docker_provisioner_container_state) }}" == "started"
+      container.state
+        | default(docker_provisioner_container_state) == "started"
     with_items: >
       {{ docker_provisioner_containers }}
     loop_control:
@@ -83,8 +83,8 @@
         {{ container.groups | default([])
           + docker_provisioner_container_groups }}
     when: >
-      "{{ container.state
-        | default(docker_provisioner_container_state) }}" == "started"
+      container.state
+        | default(docker_provisioner_container_state) == "started"
     with_items: >
       {{ docker_provisioner_containers }}
     changed_when: false
@@ -95,6 +95,13 @@
 
   - include: setup_containers_tty.yml
   - include: setup_containers_ssh.yml
+
+  - name: save inventory file with the deployed containers
+    template:
+      src: inventory.j2
+      dest: "{{ docker_provisioner_inventory }}"
+      backup: no
+    when: docker_provisioner_inventory is defined
 
   tags:
     - role::docker_provisioner
