@@ -101,7 +101,9 @@
       src: inventory.j2
       dest: "{{ docker_provisioner_inventory }}"
       backup: no
-    when: docker_provisioner_inventory is defined
+    when:
+      - docker_provisioner_inventory is defined
+      - docker_provisioner_inventory | length > 0
 
   tags:
     - role::docker_provisioner
