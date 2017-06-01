@@ -24,7 +24,7 @@
       loop_var: container
 
   - name: ensure that is possible to connect with tty to docker containers
-    raw: "echo Docker container is up"
+    raw: "/bin/bash -c echo 'Docker container is up'"
     when:
       - >
         item.tty

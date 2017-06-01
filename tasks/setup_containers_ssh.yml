@@ -18,8 +18,8 @@
         not container.1.tty
           | default(docker_provisioner_container_tty)
       - >
-        "{{ container.1.state
-          | default(docker_provisioner_container_state) }}" == "started"
+        container.1.state
+          | default(docker_provisioner_container_state) == "started"
     changed_when: false
     loop_control:
       label: "{{ container.1.name }}"
@@ -35,8 +35,8 @@
           not container.1.tty
             | default(docker_provisioner_container_tty)
         - >
-          "{{ container.1.state
-            | default(docker_provisioner_container_state) }}" == "started"
+          container.1.state
+            | default(docker_provisioner_container_state) == "started"
     with_indexed_items: >
       {{ docker_provisioner_containers }}
     loop_control:
@@ -58,8 +58,8 @@
         not container.1.tty
           | default(docker_provisioner_container_tty)
       - >
-        "{{ container.1.state
-          | default(docker_provisioner_container_state) }}" == "started"
+        container.1.state
+          | default(docker_provisioner_container_state) == "started"
     with_indexed_items: >
       {{ docker_provisioner_containers }}
     loop_control:

@@ -1,33 +1,37 @@
 ---
 # Tasks for tesing role
 
-- name: test docker_provisioner role
+- name: load docker presets and configure testing environment
   hosts: localhost
-
-  vars:
-    docker_provisioner_images: "{{ docker_provisioner_default_images }}"
-    docker_provisioner_image_state: present
-    docker_provisioner_image_force: true
-    docker_provisioner_containers: >-
-      {{ docker_provisioner_default_containers | randomize_names }}
-    docker_provisioner_container_restart: true
-
   roles:
+    - role: docker_presets
+  tasks:
+    - name: setup docker_provisioner variables
+      set_fact:
+        docker_provisioner_images: "{{ docker_presets_images }}"
+        docker_provisioner_image_state: present
+        docker_provisioner_image_force: true
+        docker_provisioner_containers: >-
+          {{ docker_presets_containers | docker_presets_randomize_names }}
+        docker_provisioner_container_restart: true
 
+- name: test role
+  hosts: localhost
+  roles:
     # Provisione images and tty based containers
 
-    - { role: docker_provisioner,
-        docker_provisioner_container_tty: true,
-        docker_provisioner_container_state: started }
+    - role: docker_provisioner
+      docker_provisioner_container_tty: true
+      docker_provisioner_container_state: started
 
     # Provisione images and non tty based containers
 
-    - { role: docker_provisioner,
-        docker_provisioner_container_tty: false,
-        docker_provisioner_container_state: started }
+    - role: docker_provisioner
+      docker_provisioner_container_tty: false
+      docker_provisioner_container_state: started
 
     # Cleanup provisioned containers
 
-    - { role: docker_provisioner,
-        docker_provisioner_images: [],
-        docker_provisioner_container_state: absent }
+    - role: docker_provisioner
+      docker_provisioner_images: []
+      docker_provisioner_container_state: absent

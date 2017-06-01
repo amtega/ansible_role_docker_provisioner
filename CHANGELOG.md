@@ -2,7 +2,7 @@
 
 ## 2017-03-09
 
-- Initial release
+- Initial release.
 
 ## 2017-03-23
 
@@ -20,7 +20,7 @@
 
 - Refactored config variables to support random container names.
 - Improved tests.
-- Improved label during container setup
+- Improved label during container setup.
 
 ## 2017-05-08
 
@@ -39,3 +39,9 @@
 ## 2017-05-19
 
 - Refactored default images/containers functionality.
+
+## 2017-06-01
+
+- Fixed some minor bugs.
+- Fixed unit tests.
+- Improved documentation in README.md

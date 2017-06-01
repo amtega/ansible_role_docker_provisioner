@@ -10,13 +10,6 @@ This is an [Ansible](http://www.ansible.com) role to provisione docker images an
 
 A list of all the default variables for this role is available in `defaults/main.yml`.
 
-The role also setups dynamically two variables that contain a set of default images and containers. The variables are, respectively, these ones:
-
-- docker_provisioner_default_images
-- docker_provisioner_default_containers
-
-The role provides the `randomize_names` filter that allow the generation of a set of contaniners/images to use with the docker_provisioner_containers/docker_provisioner_images variables, but with the names replaced by random strings.
-
 ## Dependencies
 
 - docker_engine
@@ -27,10 +20,33 @@ This is an example playbook:
 
 ```yaml
 ---
-
-- hosts: all
+- name: docker_provisioner sample
+  hosts: localhost
   roles:
-    - docker_provisioner
+    # Load some presets for images and containers
+
+    - role: docker_presets
+
+    # Provisione images and non ssh based containers
+
+    - role: docker_provisioner
+      docker_provisioner_images: "{{ docker_presets_images }}"
+      docker_provisioner_image_state: present
+      docker_provisioner_image_force: true
+      docker_provisioner_containers: "{{ docker_presets_containers }}"
+      docker_provisioner_container_restart: true
+      docker_provisioner_container_tty: false
+      docker_provisioner_container_state: started
+
+    # Cleanup provisioned containers
+
+    - role: docker_provisioner
+
+      docker_provisioner_images: []
+      docker_provisioner_image_force: true
+      docker_provisioner_container_state: absent
+      docker_provisioner_containers: "{{ docker_presets_containers }}"
+      docker_provisioner_container_restart: true
 ```
 
 ## Testing
