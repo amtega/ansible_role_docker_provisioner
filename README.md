@@ -1,4 +1,4 @@
-# docker_provisioner
+# Ansible docker_provisioner role
 
 This is an [Ansible](http://www.ansible.com) role to provisione docker images and containers.
 

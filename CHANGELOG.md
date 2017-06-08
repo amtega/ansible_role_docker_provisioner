@@ -45,3 +45,11 @@
 - Fixed some minor bugs.
 - Fixed unit tests.
 - Improved documentation in README.md
+
+## 2017-06-05
+
+- Improved documentation in README.md file.
+
+## 2017-06-08
+
+- Containers ssh host key are added to known_hosts file.
