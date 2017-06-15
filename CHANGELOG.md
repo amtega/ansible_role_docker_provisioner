@@ -53,3 +53,8 @@
 ## 2017-06-08
 
 - Containers ssh host key are added to known_hosts file.
+
+# 2017-06-15
+
+- Improved SSH public keys management.
+- Improve role structure.

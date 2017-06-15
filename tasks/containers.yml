@@ -93,8 +93,8 @@
         {{ container.name }}
       loop_var: container
 
-  - include: setup_containers_tty.yml
-  - include: setup_containers_ssh.yml
+  - include: containers_tty.yml
+  - include: containers_ssh.yml
 
   - name: save inventory file with the deployed containers
     template:

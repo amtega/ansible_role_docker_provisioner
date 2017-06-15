@@ -2,7 +2,7 @@
 # Role tasks
 
 - name: setup images
-  include: setup_images.yml
+  include: images.yml
   static: no
   when: docker_provisioner_images | length > 0
   tags:
@@ -10,7 +10,7 @@
     - role::docker_provisioner::images
 
 - name: setup containers
-  include: setup_containers.yml
+  include: containers.yml
   static: no
   when: docker_provisioner_containers | length > 0
   tags:
