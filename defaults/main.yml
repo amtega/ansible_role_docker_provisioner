@@ -53,6 +53,7 @@ docker_provisioner_container_tty: true
 docker_provisioner_container_expose: ['1-65535']
 docker_provisioner_container_command: ""
 docker_provisioner_container_env: {}
+docker_provisioner_container_labels: {}
 docker_provisioner_container_links: []
 docker_provisioner_container_recreate: false
 docker_provisioner_container_restart: false

@@ -58,3 +58,7 @@
 
 - Improved SSH public keys management.
 - Improve role structure.
+
+# 2017-06-16
+
+- Added support for labels attribute in containers.

@@ -39,6 +39,9 @@
       env: >-
         {{ container.env
           | default(docker_provisioner_container_env) }}
+      labels: >-
+        {{ container.labels
+          | default(docker_provisioner_container_labels) }}
       links: >-
         {{ container.links
           | default(docker_provisioner_container_links) }}
