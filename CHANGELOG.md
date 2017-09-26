@@ -62,3 +62,7 @@
 # 2017-06-16
 
 - Added support for labels attribute in containers.
+
+# 2017-09-25
+
+- Improved dry run support.

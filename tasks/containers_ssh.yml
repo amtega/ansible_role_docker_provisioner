@@ -65,6 +65,7 @@
     loop_control:
       label: "{{ container.name }}"
       loop_var: container
+    check_mode: no
 
   - name: remove old ssh known_hosts entries for containers
     known_hosts:
