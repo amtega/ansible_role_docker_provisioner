@@ -4,7 +4,7 @@ This is an [Ansible](http://www.ansible.com) role to provisione docker images an
 
 ## Requirements
 
-- Ansible >= 2.0
+- Ansible >= 2.4
 
 ## Role Variables
 

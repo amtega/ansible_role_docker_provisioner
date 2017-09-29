@@ -54,15 +54,20 @@
 
 - Containers ssh host key are added to known_hosts file.
 
-# 2017-06-15
+## 2017-06-15
 
 - Improved SSH public keys management.
 - Improve role structure.
 
-# 2017-06-16
+## 2017-06-16
 
 - Added support for labels attribute in containers.
 
-# 2017-09-25
+## 2017-09-25
 
 - Improved dry run support.
+
+## 2017-09-29
+
+- Refactored include directives by include_tasks / import_tasks.
+- Updated documentation.
