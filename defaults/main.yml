@@ -46,7 +46,7 @@ docker_provisioner_image_rm: true
 
 docker_provisioner_container_name: ""
 docker_provisioner_container_image: ""
-docker_provisioner_container_privileged: true
+docker_provisioner_container_privileged: false
 docker_provisioner_container_tls: true
 docker_provisioner_container_stop_timeout: 1
 docker_provisioner_container_tty: true
