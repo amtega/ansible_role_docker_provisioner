@@ -75,3 +75,7 @@
 ## 2017-10-04
 
 - Now by privileged mode is disabled by default.
+
+## 2017-10-16
+
+- All UDP ports now are exposed by default.
