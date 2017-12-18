@@ -99,9 +99,9 @@
         container.1.state
         | default(docker_provisioner_container_state) == "started"
     with_indexed_items: "{{ docker_provisioner_containers }}"
-    var:
-        ips: "{{ docker_provisioner_get_ip_result.results }}"
-        public_keys: "{{ docker_provisioner_get_public_keys_result.results }}"
+    vars:
+      ips: "{{ docker_provisioner_get_ip_result.results }}"
+      public_keys: "{{ docker_provisioner_get_public_keys_result.results }}"
     loop_control:
       label: >-
         {{ container.1.name }}
