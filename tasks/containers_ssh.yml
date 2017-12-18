@@ -2,7 +2,6 @@
 # Setup connection for docker containers that use ssh
 
 - block:
-
   - name: setup containers ssh connection
     add_host:
       name: "{{ container.1.name }}"
@@ -11,15 +10,14 @@
       docker_ip: >-
         {{ docker_provisioner_get_ip_result.results[container.0].stdout }}
       ansible_connection: ssh
-    with_indexed_items: >
-      {{ docker_provisioner_containers | list }}
+    with_indexed_items: "{{ docker_provisioner_containers | list }}"
     when:
       - >
         not container.1.tty
-          | default(docker_provisioner_container_tty)
+        | default(docker_provisioner_container_tty)
       - >
         container.1.state
-          | default(docker_provisioner_container_state) == "started"
+        | default(docker_provisioner_container_state) == "started"
     changed_when: false
     loop_control:
       label: "{{ container.1.name }}"
@@ -35,18 +33,17 @@
     when:
       - >
         not container.1.tty
-          | default(docker_provisioner_container_tty)
+        | default(docker_provisioner_container_tty)
       - >
         container.1.state
-          | default(docker_provisioner_container_state) == "started"
-    with_indexed_items: >
-      {{ docker_provisioner_containers }}
+        | default(docker_provisioner_container_state) == "started"
+    with_indexed_items: "{{ docker_provisioner_containers }}"
     loop_control:
       label: >-
         {{ container.1.name
-          + " "
-          +  docker_provisioner_get_ip_result.results[container.0]['stdout']
-            | default('') }}
+           + " "
+           +  docker_provisioner_get_ip_result.results[container.0]['stdout']
+              | default('') }}
       loop_var: container
 
   - name: gather containers ssh public keys
@@ -54,12 +51,12 @@
       ssh-keyscan -T 10 {{ hostvars[container.name]['ansible_host'] }}
     changed_when: false
     when:
-        - >
-          not container.tty
-            | default(docker_provisioner_container_tty)
-        - >
-          container.state
-            | default(docker_provisioner_container_state) == "started"
+      - >
+        not container.tty
+        | default(docker_provisioner_container_tty)
+      - >
+        container.state
+        | default(docker_provisioner_container_state) == "started"
     with_items: "{{ docker_provisioner_containers }}"
     register: docker_provisioner_get_public_keys_result
     loop_control:
@@ -73,42 +70,43 @@
         {{ docker_provisioner_get_ip_result.results[container.0]['stdout'] }}
       state: absent
     when:
-        - >
-          not container.1.tty
-            | default(docker_provisioner_container_tty)
-        - >
-          container.1.state
-            | default(docker_provisioner_container_state) == "started"
-    with_indexed_items: >
-      {{ docker_provisioner_containers }}
+      - >
+        not container.1.tty
+        | default(docker_provisioner_container_tty)
+      - >
+        container.1.state
+        | default(docker_provisioner_container_state) == "started"
+    with_indexed_items: "{{ docker_provisioner_containers }}"
     loop_control:
       label: >-
         {{ container.1.name }}
         {{ docker_provisioner_get_ip_result.results[container.0]['stdout']
-          | default('') }}
+           | default('') }}
       loop_var: container
 
   - name: add ssh known_hosts entries for containers
     known_hosts:
       name: >-
-        {{ docker_provisioner_get_ip_result.results[container.0]['stdout'] }}
+        {{ ips[container.0]['stdout'] }}
       key: >-
-         {{ docker_provisioner_get_public_keys_result.results[container.0]['stdout'] }}
+        {{ public_keys[container.0]['stdout'] }}
       state: present
     when:
-        - >
-          not container.1.tty
-            | default(docker_provisioner_container_tty)
-        - >
-          container.1.state
-            | default(docker_provisioner_container_state) == "started"
-    with_indexed_items: >
-      {{ docker_provisioner_containers }}
+      - >
+        not container.1.tty
+        | default(docker_provisioner_container_tty)
+      - >
+        container.1.state
+        | default(docker_provisioner_container_state) == "started"
+    with_indexed_items: "{{ docker_provisioner_containers }}"
+    var:
+        ips: "{{ docker_provisioner_get_ip_result.results }}"
+        public_keys: "{{ docker_provisioner_get_public_keys_result.results }}"
     loop_control:
       label: >-
         {{ container.1.name }}
         {{ docker_provisioner_get_ip_result.results[container.0]['stdout']
-          | default('') }}
+           | default('') }}
       loop_var: container
 
   tags:
