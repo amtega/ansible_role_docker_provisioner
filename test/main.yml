@@ -4,7 +4,7 @@
 - name: load docker presets and configure testing environment
   hosts: localhost
   roles:
-    - role: docker_presets
+    - role: amtega.docker_presets
   tasks:
     - name: setup docker_provisioner variables
       set_fact:
@@ -19,16 +19,16 @@
   hosts: localhost
   roles:
     # Provisione images and tty based containers
-    - role: docker_provisioner
+    - role: amtega.docker_provisioner
       docker_provisioner_container_tty: true
       docker_provisioner_container_state: started
 
     # Provisione images and non tty based containers
-    - role: docker_provisioner
+    - role: amtega.docker_provisioner
       docker_provisioner_container_tty: false
       docker_provisioner_container_state: started
 
     # Cleanup provisioned containers
-    - role: docker_provisioner
+    - role: amtega.docker_provisioner
       docker_provisioner_images: []
       docker_provisioner_container_state: absent
