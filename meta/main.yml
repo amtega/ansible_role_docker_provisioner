@@ -20,5 +20,4 @@ galaxy_info:
     - cloud
 
 dependencies:
-  - src: amtega.docker_engine
-    name: docker_engine
+  - amtega.docker_engine
