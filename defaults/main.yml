@@ -22,9 +22,15 @@ docker_provisioner_images: []
 #   tls: true
 #   stop_timeout: 1
 #   tty: true
-#   expose: ['1-65535']are added toe
+#   expose: ['1-65535']
+#   command: ""
+#   env: {}}
+#   labels: {}
 #   links: []
+#   recreate: false
+#   force_kill: false
 #   restart: false
+#   state: present
 #   volumes: [] }
 
 docker_provisioner_containers: []
@@ -56,7 +62,9 @@ docker_provisioner_container_env: {}
 docker_provisioner_container_labels: {}
 docker_provisioner_container_links: []
 docker_provisioner_container_recreate: false
+docker_provisioner_container_force_kill: false
 docker_provisioner_container_restart: false
+docker_provisioner_container_state: present
 docker_provisioner_container_volumes: []
 
 # Theses variables set the ansible user, password to connect the
