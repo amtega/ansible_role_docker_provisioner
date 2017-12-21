@@ -15,6 +15,9 @@
       recreate: >-
         {{ container.recreate
            | default(docker_provisioner_container_recreate) }}
+      force_kill: >-
+        {{ container.force_kill
+           | default(docker_provisioner_force_kill) }}
       restart: >-
         {{ container.restart
            | default(docker_provisioner_container_restart) }}
