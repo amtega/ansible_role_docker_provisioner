@@ -23,7 +23,9 @@
       loop_var: container
 
   - name: ensure that is possible to connect with tty to docker containers
-    raw: "/bin/bash -c echo 'Docker container is up'"
+    shell:
+      docker exec -t {{ item.name }}
+      echo '{{ test_message }}'
     when:
       - >
         item.tty
@@ -32,10 +34,17 @@
         item.state
         | default(docker_provisioner_container_state) == "started"
     changed_when: false
-    delegate_to: "{{ item.name }}"
+    register: docker_provisioner_tty_connection_result
+    failed_when: >-
+        not docker_provisioner_tty_connection_result.stdout
+            | search(test_message)
     with_items: "{{ docker_provisioner_containers }}"
+    vars:
+      test_message: "Docker container is up"
     loop_control:
       label: "{{ item.name }}"
+
+  - debug: var=docker_provisioner_tty_connection_result
 
   vars:
     default_options: "{{ docker_provisioner_container_options }}"
