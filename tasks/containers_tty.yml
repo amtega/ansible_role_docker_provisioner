@@ -44,8 +44,6 @@
     loop_control:
       label: "{{ item.name }}"
 
-  - debug: var=docker_provisioner_tty_connection_result
-
   vars:
     default_options: "{{ docker_provisioner_container_options }}"
     default_containers: "{{ docker_provisioner_container_options }}"
