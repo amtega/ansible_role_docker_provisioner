@@ -26,11 +26,11 @@ This is an example playbook:
   roles:
     # Load some presets for images and containers
 
-    - role: docker_presets
+    - role: amtega.docker_presets
 
     # Provisione images and non ssh based containers
 
-    - role: docker_provisioner
+    - role: amtega.docker_provisioner
       docker_provisioner_images: "{{ docker_presets_images }}"
       docker_provisioner_image_state: present
       docker_provisioner_image_force: true
@@ -41,7 +41,7 @@ This is an example playbook:
 
     # Cleanup provisioned containers
 
-    - role: docker_provisioner
+    - role: amtega.docker_provisioner
 
       docker_provisioner_images: []
       docker_provisioner_image_force: true
@@ -55,14 +55,14 @@ This is an example playbook:
 Test are based on docker containers. You can run the tests with the following commands:
 
 ```shell
-$ cd docker_provisioner/test
+$ cd amtega.docker_provisioner/test
 $ ansible-playbook main.yml
 ```
 
 If you have docker engine configured you can avoid running dependant 'docker_engine' role (that usually requries root privileges) with the following commands:
 
 ```shell
-$ cd docker_provisioner/test
+$ cd amtega.docker_provisioner/test
 $ ansible-playbook --skip-tags "role::docker_engine" main.yml
 ```
 
