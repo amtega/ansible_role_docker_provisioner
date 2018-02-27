@@ -2,109 +2,108 @@
 # Setup docker containers
 
 - block:
-  - name: deploy docker containers
-    docker_container:
-      name: "{{ container.name }}"
-      image: "{{ container.image }}"
-      privileged: >-
-        {{ container.privileged
-           | default(docker_provisioner_container_privileged) }}
-      state: >-
-        {{ container.state
-           | default(docker_provisioner_container_state) }}
-      recreate: >-
-        {{ container.recreate
-           | default(docker_provisioner_container_recreate) }}
-      force_kill: >-
-        {{ container.force_kill
-           | default(docker_provisioner_container_force_kill) }}
-      restart: >-
-        {{ container.restart
-           | default(docker_provisioner_container_restart) }}
-      tls: >-
-        {{ container.tls
-           | default(docker_provisioner_container_tls) }}
-      stop_timeout: >-
-        {{ container.stop_timeout
-           | default(docker_provisioner_container_stop_timeout) }}
-      tty: >-
-        {{ container.tty
-           | default(docker_provisioner_container_tty) }}
-      expose: >-
-        {{ container.expose
-           | default(docker_provisioner_container_expose) }}
-      command: >-
-        {{ container.command
-           | default(docker_provisioner_container_command) }}
-      env: >-
-        {{ container.env
-           | default(docker_provisioner_container_env) }}
-      labels: >-
-        {{ container.labels
-           | default(docker_provisioner_container_labels) }}
-      links: >-
-        {{ container.links
-           | default(docker_provisioner_container_links) }}
-      volumes: >-
-        {{ container.volumes
-           | default(docker_provisioner_container_volumes) }}
-    with_items: "{{ docker_provisioner_containers }}"
-    loop_control:
-      label: >-
-        {{ container.name
-           + " "
-           + container.state | default(docker_provisioner_container_state) }}
-      loop_var: container
+    - name: deploy docker containers
+      docker_container:
+        name: "{{ container.name }}"
+        image: "{{ container.image }}"
+        privileged: >-
+          {{ container.privileged
+             | default(docker_provisioner_container_privileged) }}
+        state: >-
+          {{ container.state
+             | default(docker_provisioner_container_state) }}
+        recreate: >-
+          {{ container.recreate
+             | default(docker_provisioner_container_recreate) }}
+        force_kill: >-
+          {{ container.force_kill
+             | default(docker_provisioner_container_force_kill) }}
+        restart: >-
+          {{ container.restart
+             | default(docker_provisioner_container_restart) }}
+        tls: >-
+          {{ container.tls
+             | default(docker_provisioner_container_tls) }}
+        stop_timeout: >-
+          {{ container.stop_timeout
+             | default(docker_provisioner_container_stop_timeout) }}
+        tty: >-
+          {{ container.tty
+             | default(docker_provisioner_container_tty) }}
+        expose: >-
+          {{ container.expose
+             | default(docker_provisioner_container_expose) }}
+        command: >-
+          {{ container.command
+             | default(docker_provisioner_container_command) }}
+        env: >-
+          {{ container.env
+             | default(docker_provisioner_container_env) }}
+        labels: >-
+          {{ container.labels
+             | default(docker_provisioner_container_labels) }}
+        links: >-
+          {{ container.links
+             | default(docker_provisioner_container_links) }}
+        volumes: >-
+          {{ container.volumes
+             | default(docker_provisioner_container_volumes) }}
+      with_items: "{{ docker_provisioner_containers }}"
+      loop_control:
+        label: >-
+          {{ container.name
+             + " "
+             + container.state | default(docker_provisioner_container_state) }}
+        loop_var: container
 
-  - name: get containers ip addresses
-    shell: >-
-      docker inspect --format='{''{.NetworkSettings.IPAddress}''}'
-      {{ container.name }}
-    when: >-
-      container.state
-      | default(docker_provisioner_container_state) == "started"
-    register: docker_provisioner_get_ip_result
-    with_items: "{{ docker_provisioner_containers }}"
-    loop_control:
-      label: "{{ container.name }}"
-      loop_var: container
-    changed_when: false
-    check_mode: no
-
-  - name: associate auth info / group info to containers
-    add_host:
-      name: "{{ container.name }}"
-      ansible_user: >-
-        {{ container.ansible_user
-          | default(docker_provisioner_container_ansible_user) }}
-      ansible_password: >-
-        {{ container.ansible_password
-          | default(docker_provisioner_container_ansible_password) }}
-      groups: >-
-        {{ container.groups | default([])
-          + docker_provisioner_container_groups }}
-    when: >
-      container.state
+    - name: get containers ip addresses
+      shell: >-
+        docker inspect --format='{''{.NetworkSettings.IPAddress}''}'
+        {{ container.name }}
+      when: >-
+        container.state
         | default(docker_provisioner_container_state) == "started"
-    with_items: "{{ docker_provisioner_containers }}"
-    changed_when: false
-    loop_control:
-      label: "{{ container.name }}"
-      loop_var: container
+      register: docker_provisioner_get_ip_result
+      with_items: "{{ docker_provisioner_containers }}"
+      loop_control:
+        label: "{{ container.name }}"
+        loop_var: container
+      changed_when: false
+      check_mode: no
 
-  - import_tasks: containers_tty.yml
+    - name: associate auth info / group info to containers
+      add_host:
+        name: "{{ container.name }}"
+        ansible_user: >-
+          {{ container.ansible_user
+            | default(docker_provisioner_container_ansible_user) }}
+        ansible_password: >-
+          {{ container.ansible_password
+            | default(docker_provisioner_container_ansible_password) }}
+        groups: >-
+          {{ container.groups | default([])
+             + docker_provisioner_container_groups }}
+      when: >
+        container.state
+          | default(docker_provisioner_container_state) == "started"
+      with_items: "{{ docker_provisioner_containers }}"
+      changed_when: false
+      loop_control:
+        label: "{{ container.name }}"
+        loop_var: container
 
-  - import_tasks: containers_ssh.yml
+    - import_tasks: containers_tty.yml
 
-  - name: save inventory file with the deployed containers
-    template:
-      src: inventory.j2
-      dest: "{{ docker_provisioner_inventory }}"
-      backup: no
-    when:
-      - docker_provisioner_inventory is defined
-      - docker_provisioner_inventory | length > 0
+    - import_tasks: containers_ssh.yml
 
+    - name: save inventory file with the deployed containers
+      template:
+        src: inventory.j2
+        dest: "{{ docker_provisioner_inventory }}"
+        backup: no
+      when:
+        - docker_provisioner_inventory is defined
+        - docker_provisioner_inventory | length > 0
   tags:
     - role::docker_provisioner
     - role::docker_provisioner::containers
