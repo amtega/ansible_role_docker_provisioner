@@ -2,7 +2,7 @@
 # Setup docker containers
 
 - block:
-    - name: deploy docker containers
+    - name: launch asynchronous docker containers deploy
       docker_container:
         name: "{{ container.name }}"
         image: "{{ container.image }}"
@@ -49,12 +49,36 @@
           {{ container.volumes
              | default(docker_provisioner_container_volumes) }}
       with_items: "{{ docker_provisioner_containers }}"
+      register: docker_provisioner_containers_async_result
       loop_control:
         label: >-
           {{ container.name
              + " "
              + container.state | default(docker_provisioner_container_state) }}
         loop_var: container
+      async: >-
+        {{ container.max_provisioning_time
+           | default(docker_provisioner_container_max_provisioning_time) }}
+      poll: 0
+      changed_when: false
+
+    - name: check asynchronous docker containers deploy
+      async_status:
+        jid: "{{ async_result_item.ansible_job_id }}"
+      with_items: "{{ docker_provisioner_containers_async_result.results }}"
+      loop_control:
+        label: >-
+          {{ async_result_item.container.name
+             + " "
+             + async_result_item.container.state
+               | default(docker_provisioner_container_state) }}
+        loop_var: async_result_item
+      register: docker_provisioner_containers_async_poll_results
+      until: docker_provisioner_containers_async_poll_results.finished
+      retries: >-
+        {{ async_result_item.container.max_provisioning_time
+           | default(docker_provisioner_container_max_provisioning_time) }}
+      delay: 1
 
     - name: get containers ip addresses
       shell: >-

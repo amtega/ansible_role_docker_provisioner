@@ -1,7 +1,7 @@
 ---
 # Setup docker images
 
-- name: deploy docker images
+- name: launch asynchronous docker image deploy
   docker_image:
     name: "{{ image.name }}"
     dockerfile: >-
@@ -23,9 +23,29 @@
       {{ image.state
          | default(docker_provisioner_image_state) }}
   with_items: "{{ docker_provisioner_images }}"
+  register: docker_provisioner_images_async_result
   loop_control:
     label: "{{ image.name }}"
     loop_var: image
+  async: >-
+    {{ image.max_provisioning_time
+       | default(docker_provisioner_image_max_provisioning_time) }}
+  poll: 0
+  changed_when: false
   tags:
     - role::docker_provisioner
     - role::docker_provisioner::images
+
+- name: check asynchronous docker image deploy
+  async_status:
+    jid: "{{ async_result_item.ansible_job_id }}"
+  with_items: "{{ docker_provisioner_images_async_result.results }}"
+  loop_control:
+    label: "{{ async_result_item.image.name }}"
+    loop_var: async_result_item
+  register: docker_provisioner_images_async_poll_results
+  until: docker_provisioner_images_async_poll_results.finished
+  retries: >-
+    {{ async_result_item.image.max_provisioning_time
+       | default(docker_provisioner_image_max_provisioning_time) }}
+  delay: 1
