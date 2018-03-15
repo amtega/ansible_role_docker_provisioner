@@ -4,7 +4,9 @@ This is an [Ansible](http://www.ansible.com) role to provisione docker images an
 
 ## Requirements
 
-- Ansible >= 2.4
+- [Ansible 2.4+](http://docs.ansible.com/ansible/latest/intro_installation.html)
+- [Docker](https://docs.docker.com/engine/installation/). You can use [amtega.docker_engine](https://galaxy.ansible.com/amtega/vagrant_engine/) role to setup it.
+- [docker-py](https://github.com/docker/docker-py). Role [amtega.docker_engine](https://galaxy.ansible.com/amtega/vagrant_engine/) above also installs this Python module.
 
 ## Role Variables
 
@@ -12,8 +14,7 @@ A list of all the default variables for this role is available in `defaults/main
 
 ## Dependencies
 
-- amtega.docker_engine
-- amtega.docker_presets (only required for testing)
+None.
 
 ## Example Playbook
 

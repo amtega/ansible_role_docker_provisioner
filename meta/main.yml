@@ -20,5 +20,4 @@ galaxy_info:
     - system
     - cloud
 
-dependencies:
-  - amtega.docker_engine
+dependencies: []
