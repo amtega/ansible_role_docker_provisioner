@@ -47,7 +47,7 @@ docker_provisioner_image_buildargs: {}
 docker_provisioner_image_force: false
 docker_provisioner_image_path: .
 docker_provisioner_image_rm: true
-docker_provisioner_image_max_provisioning_time: 120
+docker_provisioner_image_max_provisioning_time: 300
 
 # General container options to apply if no other ones are specified in the
 # specific container dictionary of the docker_provisioner_containers
