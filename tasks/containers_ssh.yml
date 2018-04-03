@@ -57,7 +57,7 @@
         - >
           container.state
           | default(docker_provisioner_container_state) == "started"
-      with_items: "{{ docker_provisioner_containers }}"
+      loop: "{{ docker_provisioner_containers }}"
       register: docker_provisioner_get_public_keys_result
       loop_control:
         label: "{{ container.name }}"
