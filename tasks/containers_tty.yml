@@ -38,7 +38,7 @@
       failed_when: >-
           not docker_provisioner_tty_connection_result.stdout
               | search(test_message)
-      with_items: "{{ docker_provisioner_containers }}"
+      loop: "{{ docker_provisioner_containers }}"
       vars:
         test_message: "Docker container is up"
       loop_control:

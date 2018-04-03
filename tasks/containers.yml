@@ -48,7 +48,7 @@
         volumes: >-
           {{ container.volumes
              | default(docker_provisioner_container_volumes) }}
-      with_items: "{{ docker_provisioner_containers }}"
+      loop: "{{ docker_provisioner_containers }}"
       register: docker_provisioner_containers_async_result
       loop_control:
         label: >-
@@ -65,7 +65,7 @@
     - name: check asynchronous docker containers deploy
       async_status:
         jid: "{{ async_result_item.ansible_job_id }}"
-      with_items: "{{ docker_provisioner_containers_async_result.results }}"
+      loop: "{{ docker_provisioner_containers_async_result.results }}"
       loop_control:
         label: >-
           {{ async_result_item.container.name
@@ -88,7 +88,7 @@
         container.state
         | default(docker_provisioner_container_state) == "started"
       register: docker_provisioner_get_ip_result
-      with_items: "{{ docker_provisioner_containers }}"
+      loop: "{{ docker_provisioner_containers }}"
       loop_control:
         label: "{{ container.name }}"
         loop_var: container
@@ -110,7 +110,7 @@
       when: >
         container.state
           | default(docker_provisioner_container_state) == "started"
-      with_items: "{{ docker_provisioner_containers }}"
+      loop: "{{ docker_provisioner_containers }}"
       changed_when: false
       loop_control:
         label: "{{ container.name }}"
