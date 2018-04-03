@@ -32,8 +32,7 @@ docker_provisioner_images: []
 #   force_kill: false
 #   restart: false
 #   state: present
-#   volumes: []
-#   max_provisioning_time: 120 }
+#   volumes: [] }
 
 docker_provisioner_containers: []
 
@@ -47,7 +46,6 @@ docker_provisioner_image_buildargs: {}
 docker_provisioner_image_force: false
 docker_provisioner_image_path: .
 docker_provisioner_image_rm: true
-docker_provisioner_image_max_provisioning_time: 300
 
 # General container options to apply if no other ones are specified in the
 # specific container dictionary of the docker_provisioner_containers
@@ -69,7 +67,7 @@ docker_provisioner_container_force_kill: false
 docker_provisioner_container_restart: false
 docker_provisioner_container_state: present
 docker_provisioner_container_volumes: []
-docker_provisioner_container_max_provisioning_time: 120
+docker_provisioner_container_max_provisioning_time: 200
 
 # Theses variables set the ansible user, password to connect the
 # containers. Also, variable docker_provisioner_container_groups contains a
