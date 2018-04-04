@@ -37,7 +37,7 @@
       register: docker_provisioner_tty_connection_result
       failed_when: >-
           not docker_provisioner_tty_connection_result.stdout
-              | search(test_message)
+              is search(test_message)
       loop: "{{ docker_provisioner_containers }}"
       vars:
         test_message: "Docker container is up"
