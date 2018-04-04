@@ -9,7 +9,7 @@
 #   buildargs: {}
 #   path: .
 #   rm: true
-#   max_provisioning_time: 120 }
+#   timeout: 60 }
 
 docker_provisioner_images: []
 
@@ -46,6 +46,7 @@ docker_provisioner_image_buildargs: {}
 docker_provisioner_image_force: false
 docker_provisioner_image_path: .
 docker_provisioner_image_rm: true
+docker_provisioner_image_timeout: 60
 
 # General container options to apply if no other ones are specified in the
 # specific container dictionary of the docker_provisioner_containers

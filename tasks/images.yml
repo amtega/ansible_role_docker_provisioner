@@ -22,6 +22,9 @@
     state: >-
       {{ image.state
          | default(docker_provisioner_image_state) }}
+    timeout: >-
+      {{ image.timeout
+         | default(docker_provisioner_image_timeout) }}
   loop: "{{ docker_provisioner_images }}"
   loop_control:
     label: "{{ image.name }}"
