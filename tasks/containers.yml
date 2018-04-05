@@ -86,7 +86,7 @@
         {{ container.name }}
       when: >-
         container.state
-        | default(docker_provisioner_container_state) == "started"
+        | default(docker_provisioner_container_state) in ["present", "started"]
       register: docker_provisioner_get_ip_result
       loop: "{{ docker_provisioner_containers }}"
       loop_control:
@@ -109,7 +109,7 @@
              + docker_provisioner_container_groups }}
       when: >
         container.state
-          | default(docker_provisioner_container_state) == "started"
+          | default(docker_provisioner_container_state) in ["present", "started"]
       loop: "{{ docker_provisioner_containers }}"
       changed_when: false
       loop_control:

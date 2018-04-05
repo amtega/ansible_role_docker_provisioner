@@ -15,9 +15,9 @@
           | default(docker_provisioner_container_tty)
         - >
           container.state
-          | default(docker_provisioner_container_state) == "started"
+          | default(docker_provisioner_container_state) in ["present", "started"]
       changed_when: false
-      with_indexed_items: "{{ docker_provisioner_containers }}"
+      loop: "{{ query('indexed_items', docker_provisioner_containers) }}"
       loop_control:
         label: "{{ container.1.name }}"
         loop_var: container
@@ -32,7 +32,7 @@
           | default(docker_provisioner_container_tty)
         - >
           item.state
-          | default(docker_provisioner_container_state) == "started"
+          | default(docker_provisioner_container_state) in ["present", "started"]
       changed_when: false
       register: docker_provisioner_tty_connection_result
       failed_when: >-
