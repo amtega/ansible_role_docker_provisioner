@@ -9,11 +9,11 @@
     - set_fact:
         vagrant_sandbox_boxes: >-
           {{ (vagrant_presets_boxes + extra_boxes)
-             | rejectattr("name", "centos_6")
+             | rejectattr("name", "search", "centos_6")
              | list }}
         vagrant_sandbox_vms: >-
           {{ (vagrant_presets_vms + extra_vms)
-             | rejectattr("name", "centos_6")
+             | rejectattr("name", "search", "centos_6")
              | list
              | vagrant_presets_randomize_names }}
   vars:
@@ -43,36 +43,51 @@
     - role: amtega.docker_engine
     - role: amtega.docker_presets
   tasks:
-    - name: setup docker_provisioner variables
+    - name: setup docker_provisioner common variables
       set_fact:
         docker_provisioner_images: "{{ docker_presets_images }}"
         docker_provisioner_image_state: present
-        docker_provisioner_image_timeout: 120
-        docker_provisioner_containers: >-
+
+    - name: setup docker_provisioner tty containers presets
+      set_fact:
+        docker_provisioner_containers_tty: >-
           {{ docker_presets_containers | docker_presets_randomize_names }}
-        docker_provisioner_container_restart: true
+
+    - name: setup docker_provisioner no tty containers presets
+      set_fact:
+        docker_provisioner_containers_no_tty: >-
+          {{ docker_presets_containers | docker_presets_randomize_names }}
   tags:
     - idempotence
 
-- name: test docker_provisioner role
+- name: test docker_provisioner role provisioning
   hosts: vagrant_sandbox_vms
   roles:
-    # Provisione images and tty based containers
     - role: amtega.docker_provisioner
+      docker_provisioner_containers: "{{ docker_provisioner_containers_tty }}"
       docker_provisioner_container_tty: true
       docker_provisioner_container_state: started
-    #
-    # # Provisione images and non tty based containers
-    # - role: amtega.docker_provisioner
-    #   docker_provisioner_container_tty: false
-    #   docker_provisioner_container_state: started
-    #
-    # # Cleanup provisioned containers
-    # - role: amtega.docker_provisioner
-    #   docker_provisioner_images: []
-    #   docker_provisioner_container_state: absent
+
+    - role: amtega.docker_provisioner
+      docker_provisioner_images: []
+      docker_provisioner_containers: >-
+        {{ docker_provisioner_containers_no_tty }}
+      docker_provisioner_container_tty: false
+      docker_provisioner_container_state: started
   tags:
     - idempotence
+
+- name: test docker_provisioner role cleanup
+  hosts: vagrant_sandbox_vms
+  roles:
+    - role: amtega.docker_provisioner
+      docker_provisioner_containers: "{{ docker_provisioner_containers_tty }}"
+      docker_provisioner_container_state: absent
+
+    - role: amtega.docker_provisioner
+      docker_provisioner_containers: >-
+        {{ docker_provisioner_containers_no_tty }}
+      docker_provisioner_container_state: absent
 
 - name: cleanup vagrant sandbox
   hosts: localhost
