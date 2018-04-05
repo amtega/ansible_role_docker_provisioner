@@ -44,7 +44,10 @@ docker_provisioner_image_name: ""
 docker_provisioner_image_dockerfile: Dockerfile
 docker_provisioner_image_buildargs: {}
 docker_provisioner_image_force: false
-docker_provisioner_image_path: .
+docker_provisioner_image_path: >-
+  {{ (ansible_user_id == "root")
+     | ternary("/var/lib/docker/build",
+               "~/.docker/build" | expanduser) }}
 docker_provisioner_image_rm: true
 docker_provisioner_image_timeout: 60
 
