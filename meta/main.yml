@@ -11,8 +11,6 @@ galaxy_info:
       - 26
       - 27
   - name: EL
-    versions:
-      - 6
       - 7
   galaxy_tags:
     - docker
