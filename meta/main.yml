@@ -12,6 +12,9 @@ galaxy_info:
       - 27
   - name: EL
       - 7
+  - name: Debian
+    versions:
+      - stretch
   galaxy_tags:
     - docker
     - system
