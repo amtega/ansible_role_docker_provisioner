@@ -5,9 +5,8 @@
     - name: setup containers docker connector
       add_host:
         name: "{{ container.1.name }}"
-        ansible_host: "{{ inventory_hostname }}"
-        ansible_port: >-
-          {{ hostvars[inventory_hostname][ansible_port] | default(22) }}
+        ansible_host: "{{ ansible_host }}"
+        ansible_port: "{{ ansible_port | default(22) }}"
         docker_ip: >-
           {{ docker_provisioner_containers_ips[container.0] }}
         ansible_connection: docker
@@ -29,16 +28,16 @@
 
     - name: ensure that is possible to connect to docker connector containers
       shell:
-        docker exec -t {{ item.name }}
+        docker exec -t {{ container.name }}
         echo '{{ test_message }}'
       when:
         - >
-          not container.1.ssh_port
+          not container.ssh_port
               | default(docker_provisioner_container_ssh_port)
               | string
               | length > 0
         - >
-          item.state
+          container.state
           | default(docker_provisioner_container_state)
           in ["present", "started"]
       changed_when: false
@@ -50,7 +49,8 @@
       vars:
         test_message: "Docker container is up"
       loop_control:
-        label: "{{ item.name }}"
+        label: "{{ container.name }}"
+        loop_var: container
   vars:
     default_options: "{{ docker_provisioner_container_options }}"
     default_containers: "{{ docker_provisioner_container_options }}"

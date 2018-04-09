@@ -43,7 +43,7 @@
           add_host:
             name: "{{ container.1.name }}"
             ansible_host: >-
-              {{ inventory_hostname }}
+              {{ ansible_host }}
             ansible_port: "{{ ssh_mapped_ports[container.0] }}"
             ansible_connection: ssh
           loop: "{{ query('indexed_items', docker_provisioner_containers) }}"
@@ -64,7 +64,7 @@
 
         - name: wait for docker containers ssh port
           wait_for:
-            host: "{{ inventory_hostname }}"
+            host: "{{ ansible_host }}"
             port: "{{ ssh_mapped_ports[container.0] }}"
             timeout: 60
             connect_timeout: 5
@@ -116,7 +116,7 @@
         - name: remove old ssh known_hosts entries for containers
           known_hosts:
             name: >-
-              [{{ inventory_hostname }}]:{{ ssh_mapped_ports[container.0] }}
+              [{{ ansible_host }}]:{{ ssh_mapped_ports[container.0] }}
             state: absent
           when:
             - >
@@ -138,12 +138,12 @@
         - name: add ssh known_hosts entries for containers
           known_hosts:
             name: >-
-              [{{ inventory_hostname }}]:{{ ssh_mapped_ports[container.0] }}
+              [{{ ansible_host }}]:{{ ssh_mapped_ports[container.0] }}
             key: >-
               {{ public_keys[container.0]['stdout']
                  | regex_replace(docker_provisioner_containers_ips[container.0],
                                  "["
-                                 + inventory_hostname
+                                 + ansible_host
                                  + "]:"
                                  + ssh_mapped_ports[container.0]) }}
             state: present
