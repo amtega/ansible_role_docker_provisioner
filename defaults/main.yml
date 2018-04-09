@@ -4,12 +4,15 @@
 # List of dicts with the images to provisione. The dicts must have the following
 # values (see docker_image module documentation for detais of each option):
 #
-# { name: ""
-#   dockerfile: Dockerfile
-#   buildargs: {}
-#   path: .
-#   rm: true
-#   timeout: 60 }
+# { name: ""                    # Name of the image
+#   state: present              # Can be present or absent
+#   dockerfile: Dockerfile      # Name of the Dockerfile to build the image
+#   buildargs: {}               # Dict with the build arguments to build
+#   force: false                # Force build / removal
+#   path: .                     # Directory containing the context and
+#                               # Dockerfile for building
+#   rm: true                    # Remove intermediate containers after build
+#   timeout: 60                 # Seconds to wait on a response from the API. }
 
 docker_provisioner_images: []
 
@@ -17,24 +20,26 @@ docker_provisioner_images: []
 # following values ( see docker_container module documentation for detais of each
 # option):
 #
-# { name: ""
-#   image: ""
-#   privileged: true
-#   tls: true
-#   stop_timeout: 1
-#   tty: true
-#   exposed_ports: [22]
-#   published_ports: [22]
-#   command: ""
-#   env: {}}
-#   labels: {}
-#   links: []
-#   recreate: false
-#   force_kill: false
-#   restart: false
-#   state: present
-#   volumes: []
-#   ssh_port: 22 }
+# { name: ""                  # Name of the container
+#   image: ""                 # Image to use to start the container
+#   state: present            # Can be started, present, absent and stopped
+#   privileged: true          # Give extended privileges to the container
+#   tls: true                 # Secure the connection to the API by using TLS
+#   stop_timeout: 1           # Seconds to wait for the container to stop
+#   tty: true                 # Allocate a pseudo-TTY
+#   exposed_ports: [22]       # List of additional container exposed ports
+#   published_ports: [22]     # List of additional container published ports
+#   command: ""               # Command to execute when the container starts
+#   env: {}                   # Dictionary with container environment
+#   labels: {}                # Dictionary with container labels
+#   links: []                 # List of name aliases for linked containers
+#   recreate: false           # Force the re-creation of an existing container
+#   force_kill: false         # Use the kill command when stopping the container
+#   restart: false            # Force the container to be stopped and restarted
+#   volumes: []               # List of volumes to mount within the container
+#   ssh_port: 22              # Port where container listens for ssh
+#                             # If defined the rol will add the coontainer to
+#                             # the running inventory for direct management }
 
 docker_provisioner_containers: []
 
