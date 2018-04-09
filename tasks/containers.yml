@@ -30,9 +30,12 @@
         tty: >-
           {{ container.tty
              | default(docker_provisioner_container_tty) }}
-        expose: >-
-          {{ container.expose
-             | default(docker_provisioner_container_expose) }}
+        exposed_ports: >-
+          {{ container.exposed_ports
+             | default(docker_provisioner_container_exposed_ports) }}
+        published_ports: >-
+          {{ container.published_ports
+             | default(docker_provisioner_container_published_ports) }}
         command: >-
           {{ container.command
              | default(docker_provisioner_container_command) }}
@@ -107,18 +110,36 @@
         groups: >-
           {{ container.groups | default([])
              + docker_provisioner_container_groups }}
-      when: >
+      when: >-
         container.state
-          | default(docker_provisioner_container_state) in ["present", "started"]
+        | default(docker_provisioner_container_state)
+        in ["present", "started"]
       loop: "{{ docker_provisioner_containers }}"
       changed_when: false
       loop_control:
         label: "{{ container.name }}"
         loop_var: container
 
-    - import_tasks: containers_tty.yml
+    - block:
+        - import_tasks: containers_connector_docker.yml
+          when: >-
+            docker_provisioner_containers
+            | selectattr("ssh_port", "undefined")
+            | list
+            | length > 0
+            and docker_provisioner_container_ssh_port | length == 0
 
-    - import_tasks: containers_ssh.yml
+        - import_tasks: containers_connector_ssh.yml
+          when: >-
+            docker_provisioner_containers
+            | selectattr("ssh_port", "defined")
+            | list
+            | length > 0
+      vars:
+        docker_provisioner_containers_ips: >-
+          {{ docker_provisioner_get_ip_result.results
+             | map(attribute="stdout")
+             | list }}
 
     - name: save inventory file with the deployed containers
       template:
