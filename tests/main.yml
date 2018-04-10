@@ -89,11 +89,11 @@
       docker_provisioner_containers: >-
         {{ docker_sandbox_containers_ssh }}
       docker_provisioner_container_state: absent
-#
-# - name: cleanup docker sandbox
-#   hosts: localhost
-#   roles:
-#     - role: amtega.docker_sandbox
-#       docker_sandbox_state: absent
-#   tags:
-#     - sandbox
+
+- name: cleanup docker sandbox
+  hosts: localhost
+  roles:
+    - role: amtega.docker_sandbox
+      docker_sandbox_state: absent
+  tags:
+    - sandbox
