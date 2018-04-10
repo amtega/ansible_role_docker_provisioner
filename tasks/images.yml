@@ -25,6 +25,12 @@
     timeout: >-
       {{ image.timeout
          | default(docker_provisioner_image_timeout) }}
+    repository: >-
+      {{ image.repository
+         | default(docker_provisioner_image_repository) }}
+    push: >-
+      {{ image.push
+         | default(docker_provisioner_image_push) }}
   loop: "{{ docker_provisioner_images }}"
   loop_control:
     label: "{{ image.name }}"
