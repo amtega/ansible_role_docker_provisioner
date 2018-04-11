@@ -81,11 +81,13 @@
   hosts: docker_sandbox_containers
   roles:
     - role: amtega.docker_provisioner
+      docker_provisioner_containers_provisioning_method: asynchronous
       docker_provisioner_containers: >-
         {{ docker_sandbox_containers_no_ssh }}
       docker_provisioner_container_state: absent
 
     - role: amtega.docker_provisioner
+      docker_provisioner_containers_provisioning_method: sequential
       docker_provisioner_containers: >-
         {{ docker_sandbox_containers_ssh }}
       docker_provisioner_container_state: absent
