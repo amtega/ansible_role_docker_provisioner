@@ -2,86 +2,13 @@
 # Setup docker containers
 
 - block:
-    - name: launch asynchronous docker containers deploy
-      docker_container:
-        name: "{{ container.name }}"
-        image: "{{ container.image }}"
-        privileged: >-
-          {{ container.privileged
-             | default(docker_provisioner_container_privileged) }}
-        state: >-
-          {{ container.state
-             | default(docker_provisioner_container_state) }}
-        recreate: >-
-          {{ container.recreate
-             | default(docker_provisioner_container_recreate) }}
-        force_kill: >-
-          {{ container.force_kill
-             | default(docker_provisioner_container_force_kill) }}
-        restart: >-
-          {{ container.restart
-             | default(docker_provisioner_container_restart) }}
-        tls: >-
-          {{ container.tls
-             | default(docker_provisioner_container_tls) }}
-        stop_timeout: >-
-          {{ container.stop_timeout
-             | default(docker_provisioner_container_stop_timeout) }}
-        tty: >-
-          {{ container.tty
-             | default(docker_provisioner_container_tty) }}
-        exposed_ports: >-
-          {{ container.exposed_ports
-             | default(docker_provisioner_container_exposed_ports) }}
-        published_ports: >-
-          {{ container.published_ports
-             | default(docker_provisioner_container_published_ports) }}
-        command: >-
-          {{ container.command
-             | default(docker_provisioner_container_command) }}
-        env: >-
-          {{ container.env
-             | default(docker_provisioner_container_env) }}
-        labels: >-
-          {{ container.labels
-             | default(docker_provisioner_container_labels) }}
-        links: >-
-          {{ container.links
-             | default(docker_provisioner_container_links) }}
-        volumes: >-
-          {{ container.volumes
-             | default(docker_provisioner_container_volumes) }}
-      loop: "{{ docker_provisioner_containers }}"
-      register: docker_provisioner_containers_async_result
-      loop_control:
-        label: >-
-          {{ container.name
-             + " "
-             + container.state | default(docker_provisioner_container_state) }}
-        loop_var: container
-      async: >-
-        {{ container.max_provisioning_time
-           | default(docker_provisioner_container_max_provisioning_time) }}
-      poll: 0
-      changed_when: false
-
-    - name: check asynchronous docker containers deploy
-      async_status:
-        jid: "{{ async_result_item.ansible_job_id }}"
-      loop: "{{ docker_provisioner_containers_async_result.results }}"
-      loop_control:
-        label: >-
-          {{ async_result_item.container.name
-             + " "
-             + async_result_item.container.state
-               | default(docker_provisioner_container_state) }}
-        loop_var: async_result_item
-      register: docker_provisioner_containers_async_poll_results
-      until: docker_provisioner_containers_async_poll_results.finished
-      retries: >-
-        {{ async_result_item.container.max_provisioning_time
-           | default(docker_provisioner_container_max_provisioning_time) }}
-      delay: 1
+    - import_tasks: "{{ playbook }}"
+      vars:
+        method: "{{ docker_provisioner_containers_provisioning_method }}"
+        playbook: >-
+          {{ (method == "asynchronous")
+             | ternary("containers_provisioning_asynchronous.yml",
+                       "containers_provisioning_sequential.yml") }}
 
     - name: get containers ip addresses
       shell: >-
@@ -100,24 +27,26 @@
 
     - name: associate auth info / group info to containers
       add_host:
-        name: "{{ container.name }}"
+        name: "{{ container.1.name }}"
         ansible_user: >-
-          {{ container.ansible_user
+          {{ container.1.ansible_user
             | default(docker_provisioner_container_ansible_user) }}
         ansible_password: >-
-          {{ container.ansible_password
+          {{ container.1.ansible_password
             | default(docker_provisioner_container_ansible_password) }}
         groups: >-
-          {{ container.groups | default([])
+          {{ container.1.groups | default([])
              + docker_provisioner_container_groups }}
+        docker_ip: >-
+          {{ docker_provisioner_get_ip_result.results[container.0].stdout }}
       when: >-
         container.state
         | default(docker_provisioner_container_state)
         in ["present", "started"]
-      loop: "{{ docker_provisioner_containers }}"
+      loop: "{{ query('indexed_items', docker_provisioner_containers) }}"
       changed_when: false
       loop_control:
-        label: "{{ container.name }}"
+        label: "{{ container.1.name }}"
         loop_var: container
 
     - block:
