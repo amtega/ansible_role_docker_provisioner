@@ -53,9 +53,9 @@ This is an example playbook:
 
 ## Testing
 
-Tests are based on docker containers. You can setup docker engine quickly using the playbook `files/setup.yml` available in the role [amtega.docker_engine](https://galaxy.ansible.com/amtega/docker_engine).
+Tests are based on vagrant virtual machines. You can setup vagrant engine quickly using the playbook `files/setup.yml` available in the role [amtega.vagrant_engine](https://galaxy.ansible.com/amtega/vagrant_engine).
 
-Once you have docker, you can run the tests with the following commands:
+Once you have vagrant, you can run the tests with the following commands:
 
 ```shell
 $ cd amtega.docker_provisioner/tests
