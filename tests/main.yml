@@ -23,6 +23,7 @@
 
 - name: setup software and config requirements in sandbox hosts
   hosts: vagrant_sandbox_vms
+  serial: 1
   roles:
     - role: amtega.docker_engine
     - role: amtega.docker_presets
@@ -50,6 +51,7 @@
 
 - name: test docker_provisioner role provisioning
   hosts: vagrant_sandbox_vms
+  serial: 1
   roles:
     - role: amtega.docker_provisioner
       docker_provisioner_containers: >-
@@ -65,6 +67,7 @@
 
 - name: test docker_provisioner role cleanup
   hosts: vagrant_sandbox_vms
+  serial: 1
   roles:
     - role: amtega.docker_provisioner
       docker_provisioner_containers_provisioning_method: asynchronous
