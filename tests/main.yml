@@ -1,45 +1,36 @@
 ---
 # Tasks for testing role
 
-- name: configure docker sandbox environment
+- name: configure vagrant sandbox environment
   hosts: localhost
   roles:
-    - role: amtega.docker_presets
-      docker_presets_images_json_query: >-
+    - role: amtega.vagrant_presets
+      vagrant_presets_images_json_query: >-
         [? (starts_with(name, `centos_7`))
-           || starts_with(name, `debian`)
-           || starts_with(name, `fedora`) ]
+           || starts_with(name, `debian_9`)
+           || starts_with(name, `fedora_26`)
+           || starts_with(name, `fedora_27`) ]
   tags:
     - sandbox
 
 - name: run idempotence test
   hosts: localhost
   roles:
-    - role: amtega.docker_sandbox
+    - role: amtega.vagrant_sandbox
       docker_sandbox_state: started
   tags:
     - sandbox
 
-- name: configure docker_provisioner role
-  hosts: docker_sandbox_containers
+- name: setup software and config requirements in sandbox hosts
+  hosts: vagrant_sandbox_vms
   roles:
     - role: amtega.docker_engine
     - role: amtega.docker_presets
   tasks:
-    - name: setup docker_provisioner common variables
-      set_fact:
-        docker_provisioner_images: >-
-          {{ docker_presets_images
-             | selectattr("name", "search", container_preset)
-             | list }}
-        docker_provisioner_image_state: present
-
     - name: setup docker_provisioner no ssh containers presets
       set_fact:
         docker_sandbox_containers_no_ssh: >-
           {{ docker_presets_containers
-             | selectattr("name", "search", container_preset)
-             | list
              | docker_presets_add_attributes(container_name, overwrite=true)
              | docker_presets_remove_attributes(["ssh_port"]) }}
       vars:
@@ -50,20 +41,15 @@
       set_fact:
         docker_sandbox_containers_ssh: >-
           {{ docker_presets_containers
-             | selectattr("name", "search", container_preset)
-             | list
              | docker_presets_add_attributes(container_name, overwrite=true) }}
       vars:
         container_name:
           name: "{{ container_preset }}_ssh"
-  vars:
-    container_preset: >-
-      {{ inventory_hostname | regex_replace("(.*_.*)_.*", "\1") }}
   tags:
     - idempotence
 
 - name: test docker_provisioner role provisioning
-  hosts: docker_sandbox_containers
+  hosts: vagrant_sandbox_vms
   roles:
     - role: amtega.docker_provisioner
       docker_provisioner_containers: >-
@@ -78,7 +64,7 @@
     - idempotence
 
 - name: test docker_provisioner role cleanup
-  hosts: docker_sandbox_containers
+  hosts: vagrant_sandbox_vms
   roles:
     - role: amtega.docker_provisioner
       docker_provisioner_containers_provisioning_method: asynchronous
@@ -92,10 +78,10 @@
         {{ docker_sandbox_containers_ssh }}
       docker_provisioner_container_state: absent
 
-- name: cleanup docker sandbox
+- name: cleanup vagrant sandbox
   hosts: localhost
   roles:
-    - role: amtega.docker_sandbox
-      docker_sandbox_state: absent
+    - role: amtega.vagrant_sandbox
+      vagrant_sandbox_state: absent
   tags:
     - sandbox
