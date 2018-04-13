@@ -1,5 +1,5 @@
 ---
-# Setup docker images asynchronous
+# Setup docker images asynchronously
 
 - block:
     - name: launch asynchronous docker image deploy

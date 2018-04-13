@@ -1,8 +1,8 @@
 ---
-# Setup docker containers
+# Setup docker containers sequentially
 
 - block:
-    - name: launch sequential docker containers deploy
+    - name: sequential docker containers deploy
       docker_container:
         name: "{{ container.name }}"
         image: "{{ container.image }}"

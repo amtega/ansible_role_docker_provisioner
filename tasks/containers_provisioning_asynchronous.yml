@@ -1,5 +1,5 @@
 ---
-# Setup docker containers
+# Setup docker containers asynchronously
 
 - block:
     - name: launch asynchronous docker containers deploy
