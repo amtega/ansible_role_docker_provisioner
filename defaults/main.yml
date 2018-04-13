@@ -14,39 +14,44 @@
 #   rm: true                    # Remove intermediate containers after build
 #   timeout: 60                 # Seconds to wait on a response from the API.
 #   repository: localhost:5000  # Full path to a repository
-#   push: true                  # Push the image to the registry }
+#   push: true                  # Push the image to the registry
+#   max_provisioning_time: 120  # Maximum asynchronous provisioning time }
 
 docker_provisioner_images: []
+
+# Indicate images provisioning method. Can be asynchronous or sequential
+
+docker_provisioner_images_provisioning_method: asynchronous
 
 # List of dicts with the containers to provisione. The dicts must have the
 # following values ( see docker_container module documentation for detais of each
 # option):
 #
-# { name: ""                  # Name of the container
-#   image: ""                 # Image to use to start the container
-#   state: present            # Can be started, present, absent and stopped
-#   privileged: true          # Give extended privileges to the container
-#   tls: true                 # Secure the connection to the API by using TLS
-#   stop_timeout: 1           # Seconds to wait for the container to stop
-#   tty: true                 # Allocate a pseudo-TTY
-#   exposed_ports: [22]       # List of additional container exposed ports
-#   published_ports: [22]     # List of additional container published ports
-#   command: ""               # Command to execute when the container starts
-#   env: {}                   # Dictionary with container environment
-#   labels: {}                # Dictionary with container labels
-#   links: []                 # List of name aliases for linked containers
-#   recreate: false           # Force the re-creation of an existing container
-#   force_kill: false         # Use the kill command when stopping the container
-#   restart: false            # Force the container to be stopped and restarted
-#   volumes: []               # List of volumes to mount within the container
-#   ssh_port: 22              # Port where container listens for ssh
-#                             # If defined the rol will add the coontainer to
-#                             # the running inventory for direct management
-#   ansible_user: root        # Ansible user to connect the container
-#   ansible_password: root    # Ansible password to connect the container
-#   groups:                   # List of groups where to add the provisioned containers
-#     - docker_provisioner_containers
-# }
+# { name: ""                   # Name of the container
+#   image: ""                  # Image to use to start the container
+#   state: present             # Can be started, present, absent and stopped
+#   privileged: true           # Give extended privileges to the container
+#   tls: true                  # Secure the connection to the API by using TLS
+#   stop_timeout: 1            # Seconds to wait for the container to stop
+#   tty: true                  # Allocate a pseudo-TTY
+#   exposed_ports: [22]        # List of additional container exposed ports
+#   published_ports: [22]      # List of additional container published ports
+#   command: ""                # Command to execute when the container starts
+#   env: {}                    # Dictionary with container environment
+#   labels: {}                 # Dictionary with container labels
+#   links: []                  # List of name aliases for linked containers
+#   recreate: false            # Force the re-creation of an existing container
+#   force_kill: false          # Use the kill command when stopping the container
+#   restart: false             # Force the container to be stopped and restarted
+#   volumes: []                # List of volumes to mount within the container
+#   ssh_port: 22               # Port where container listens for ssh
+#                              # If defined the rol will add the coontainer to
+#                              # the running inventory for direct management
+#   ansible_user: root         # Ansible user to connect the container
+#   ansible_password: root     # Ansible password to connect the container
+#   groups:                    # List of groups where to add the provisioned containers
+#     - containers             # containers
+#   max_provisioning_time: 120 # Maximum asynchronous provisioning time }
 
 docker_provisioner_containers: []
 
@@ -63,13 +68,14 @@ docker_provisioner_image_dockerfile: Dockerfile
 docker_provisioner_image_buildargs: {}
 docker_provisioner_image_force: false
 docker_provisioner_image_path: >-
-  {{ (ansible_user_id == "root")
+  {{ (ansible_facts.user_id == "root")
      | ternary("/var/lib/docker/build",
                "~/.docker/build" | expanduser) }}
 docker_provisioner_image_rm: true
 docker_provisioner_image_timeout: 60
 docker_provisioner_image_repository: ""
 docker_provisioner_image_push: false
+docker_provisioner_image_max_provisioning_time: 120
 
 # General container options to apply if no other ones are specified in the
 # specific container dictionary of the docker_provisioner_containers
