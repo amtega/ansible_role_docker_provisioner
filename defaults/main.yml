@@ -21,7 +21,7 @@ docker_provisioner_images: []
 
 # Indicate images provisioning method. Can be asynchronous or sequential
 
-docker_provisioner_images_provisioning_method: asynchronous
+docker_provisioner_images_provisioning_method: sequential
 
 # List of dicts with the containers to provisione. The dicts must have the
 # following values ( see docker_container module documentation for detais of each
