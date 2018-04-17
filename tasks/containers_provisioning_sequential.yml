@@ -1,0 +1,64 @@
+---
+# Setup docker containers sequentially
+
+- block:
+    - name: sequential docker containers deploy
+      docker_container:
+        name: "{{ container.name }}"
+        image: "{{ container.image }}"
+        privileged: >-
+          {{ container.privileged
+             | default(docker_provisioner_container_privileged) }}
+        state: >-
+          {{ container.state
+             | default(docker_provisioner_container_state) }}
+        recreate: >-
+          {{ container.recreate
+             | default(docker_provisioner_container_recreate) }}
+        force_kill: >-
+          {{ container.force_kill
+             | default(docker_provisioner_container_force_kill) }}
+        restart: >-
+          {{ container.restart
+             | default(docker_provisioner_container_restart) }}
+        tls: >-
+          {{ container.tls
+             | default(docker_provisioner_container_tls) }}
+        stop_timeout: >-
+          {{ container.stop_timeout
+             | default(docker_provisioner_container_stop_timeout) }}
+        tty: >-
+          {{ container.tty
+             | default(docker_provisioner_container_tty) }}
+        exposed_ports: >-
+          {{ container.exposed_ports
+             | default(docker_provisioner_container_exposed_ports) }}
+        published_ports: >-
+          {{ container.published_ports
+             | default(docker_provisioner_container_published_ports) }}
+        command: >-
+          {{ container.command
+             | default(docker_provisioner_container_command) }}
+        env: >-
+          {{ container.env
+             | default(docker_provisioner_container_env) }}
+        labels: >-
+          {{ container.labels
+             | default(docker_provisioner_container_labels) }}
+        links: >-
+          {{ container.links
+             | default(docker_provisioner_container_links) }}
+        volumes: >-
+          {{ container.volumes
+             | default(docker_provisioner_container_volumes) }}
+      loop: "{{ docker_provisioner_containers }}"
+      register: docker_provisioner_containers_deploy_result
+      loop_control:
+        label: >-
+          {{ container.name
+             + " "
+             + container.state | default(docker_provisioner_container_state) }}
+        loop_var: container
+  tags:
+    - role::docker_provisioner
+    - role::docker_provisioner::containers
