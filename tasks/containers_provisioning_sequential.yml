@@ -52,7 +52,7 @@
           {{ container.volumes
              | default(docker_provisioner_container_volumes) }}
       loop: "{{ docker_provisioner_containers }}"
-      register: docker_provisioner_containers_async_result
+      register: docker_provisioner_containers_deploy_result
       loop_control:
         label: >-
           {{ container.name
