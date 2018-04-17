@@ -76,8 +76,8 @@
              + async_result_item.container.state
                | default(docker_provisioner_container_state) }}
         loop_var: async_result_item
-      register: docker_provisioner_containers_async_poll_results
-      until: docker_provisioner_containers_async_poll_results.finished
+      register: docker_provisioner_containers_deploy_result
+      until: docker_provisioner_containers_deploy_result.finished
       retries: >-
         {{ async_result_item.container.max_provisioning_time
            | default(docker_provisioner_container_max_provisioning_time) }}

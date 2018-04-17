@@ -2,10 +2,10 @@
 # Setup docker containers
 
 - block:
-    - import_tasks: "{{ playbook }}"
+    - import_tasks: "{{ docker_provisioner_containers_provisioning_include }}"
       vars:
         method: "{{ docker_provisioner_containers_provisioning_method }}"
-        playbook: >-
+        docker_provisioner_containers_provisioning_include: >-
           {{ (method == "asynchronous")
              | ternary("containers_provisioning_asynchronous.yml",
                        "containers_provisioning_sequential.yml") }}
