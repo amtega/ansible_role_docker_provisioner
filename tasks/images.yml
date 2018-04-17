@@ -1,10 +1,10 @@
 ---
 # Setup docker images
 
-- import_tasks: "{{ playbook }}"
+- import_tasks: "{{ docker_provisioner_images_provisioning_include }}"
   vars:
     method: "{{ docker_provisioner_images_provisioning_method }}"
-    playbook: >-
+    docker_provisioner_images_provisioning_include: >-
       {{ (method == "asynchronous")
          | ternary("images_provisioning_asynchronous.yml",
                    "images_provisioning_sequential.yml") }}
