@@ -101,7 +101,8 @@
                  | regex_replace(container_ip,
                                  container_known_hosts_ip
                                  + ":"
-                                 + container_ssh_port) }}
+                                 + container_ssh_port)
+                 | regex_replace(":22$", "") }}
             state: present
           loop: >-
             {{ query('indexed_items', docker_provisioner_containers) }}
@@ -125,7 +126,8 @@
                  | regex_replace(ips[container.0],
                                  container_known_hosts_ip
                                  + ":"
-                                 + mapped_ports[container.0]) }}
+                                 + mapped_ports[container.0])
+                 | regex_replace(":22$", "") }}
             state: present
           when: >-
             container.1.state
