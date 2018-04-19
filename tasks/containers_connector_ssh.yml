@@ -90,14 +90,12 @@
         - name: setup ssh known_hosts entries in docker host
           known_hosts:
             name: >-
-              {{ container_known_hosts_ip }}:{{ container_ssh_port}}
+              {{ container_known_hosts_ip + container_ssh_port_suffix }}
             key: >-
               {{ public_keys[container.0]
                  | regex_replace(container_ip,
                                  container_known_hosts_ip
-                                 + ":"
-                                 + container_ssh_port)
-                 | regex_replace(":22$", "") }}
+                                 + container_ssh_port_suffix) }}
             state: present
           loop: >-
             {{ query('indexed_items', docker_provisioner_containers) }}
@@ -115,14 +113,12 @@
           local_action: known_hosts
           args:
             name: >-
-              {{ container_known_hosts_ip }}:{{ mapped_ports[container.0] }}
+              {{ container_known_hosts_ip + container_ssh_port_mapped_suffix }}
             key: >-
               {{ public_keys[container.0]
                  | regex_replace(ips[container.0],
                                  container_known_hosts_ip
-                                 + ":"
-                                 + mapped_ports[container.0])
-                 | regex_replace(":22$", "") }}
+                                 + container_ssh_port_mapped_suffix) }}
             state: present
           loop: >-
             {{ query('indexed_items', docker_provisioner_containers) }}
@@ -139,7 +135,7 @@
           | default(docker_provisioner_container_state)
           in ["present", "started"]
         - >
-          mapped_ports[container.0] | length > 0
+          container_ssh_port_mapped | length > 0
         - >
           container.1.ssh_port
           | default(docker_provisioner_container_ssh_port)
@@ -154,12 +150,22 @@
           {{ docker_provisioner_get_public_keys_result.results
              | map(attribute="stdout")
              | list }}
-        container_ip: "{{ ips[container.0] }}"
+        container_ip: >-
+          {{ ips[container.0] }}
         container_ssh_port: >-
           {{ container.1.ssh_port
              | default(default_ssh_port)
              | string }}
-        container_ssh_port_mapped: "{{ mapped_ports[container.0] }}"
+        container_ssh_port_suffix: >-
+          {{ (container_ssh_port | string == "22")
+             | ternary("", ":" + container_ssh_port)
+          }}
+        container_ssh_port_mapped: >-
+          {{ mapped_ports[container.0] }}
+        container_ssh_port_mapped_suffix: >-
+          {{ (container_ssh_port_mapped | string == "22")
+             | ternary("", ":" + container_ssh_port_mapped)
+          }}
   vars:
     mapped_ports: >-
       {{ docker_provisioner_get_ssh_mapped_port_result.results
