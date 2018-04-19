@@ -96,7 +96,7 @@
                  | regex_replace(container_ip,
                                  container_known_hosts_ip
                                  + ":"
-                                 + container_ssh_port) }}
+                                 + container_ssh_port)
                  | regex_replace(":22$", "") }}
             state: present
           loop: >-
