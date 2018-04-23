@@ -42,16 +42,12 @@
         - name: setup containers ssh connector
           add_host:
             name: "{{ container.1.name }}"
-            ansible_host: >-
-              {{ (inventory_hostname != "localhost")
-                 | ternary(container_ip, ansible_host) }}
-            ansible_port: >-
-              {{ (inventory_hostname != "localhost")
-                 | ternary(container_ssh_port, container_ssh_port_mapped) }}
+            ansible_host: "{{ host }}"
+            ansible_port: "{{ container_ssh_port }}"
             ansible_connection: ssh
+          changed_when: false
           loop: >-
             {{ query('indexed_items', docker_provisioner_containers) }}
-          changed_when: false
           loop_control:
             label: "{{ container.1.name }}"
             loop_var: container
@@ -59,7 +55,7 @@
         - name: wait for docker containers ssh port
           wait_for:
             host: "{{ ansible_host }}"
-            port: "{{ container_ssh_port_mapped }}"
+            port: "{{ container_ssh_port }}"
             timeout: 60
             connect_timeout: 5
           changed_when: false
@@ -76,8 +72,8 @@
         - name: gather containers ssh public keys
           shell: >-
             ssh-keyscan -T 10
-            {{ container_ip }}
             -p {{ container_ssh_port }}
+            {{ host }}
           changed_when: false
           loop: >-
             {{ query('indexed_items', docker_provisioner_containers) }}
@@ -89,13 +85,22 @@
 
         - name: setup ssh known_hosts entries in docker host
           known_hosts:
-            name: >-
-              {{ container_known_hosts_ip + container_ssh_port_suffix }}
-            key: >-
-              {{ public_keys[container.0]
-                 | regex_replace(container_ip,
-                                 container_known_hosts_ip
-                                 + container_ssh_port_suffix) }}
+            name: "{{ container_knownhosts_address }}"
+            key: "{{ container_public_key }}"
+            state: present
+          loop: >-
+            {{ query('indexed_items', docker_provisioner_containers) }}
+          loop_control:
+            label: >-
+              {{ container.1.name }}
+              {{ ips[container.0] | default('') }}
+            loop_var: container
+
+        - name: setup ssh known_hosts entries in ansible controller
+          local_action: known_hosts
+          args:
+            name: "{{ container_knownhosts_address }}"
+            key: "{{ container_public_key }}"
             state: present
           loop: >-
             {{ query('indexed_items', docker_provisioner_containers) }}
@@ -105,29 +110,6 @@
               {{ ips[container.0] | default('') }}
             loop_var: container
           vars:
-            container_known_hosts_ip: >-
-              {{ (container_ssh_port == "22")
-                 | ternary(container_ip, "[" + container_ip + "]") }}
-
-        - name: setup ssh known_hosts entries in ansible controller
-          local_action: known_hosts
-          args:
-            name: >-
-              {{ container_known_hosts_ip + container_ssh_port_mapped_suffix }}
-            key: >-
-              {{ public_keys[container.0]
-                 | regex_replace(ips[container.0],
-                                 container_known_hosts_ip
-                                 + container_ssh_port_mapped_suffix) }}
-            state: present
-          loop: >-
-            {{ query('indexed_items', docker_provisioner_containers) }}
-          loop_control:
-            label: >-
-              {{ container.1.name }}
-              {{ container_ip | default('') }}
-            loop_var: container
-          vars:
             container_known_hosts_ip: "[{{ ansible_host }}]"
       when:
         - >
@@ -135,7 +117,7 @@
           | default(docker_provisioner_container_state)
           in ["present", "started"]
         - >
-          container_ssh_port_mapped | length > 0
+          container_ssh_port | length > 0
         - >
           container.1.ssh_port
           | default(docker_provisioner_container_ssh_port)
@@ -144,28 +126,22 @@
         - >
           docker_provisioner_containers_deploy_result.results[container.0]
           is changed
-
       vars:
+        host: >-
+          {{ hostvars[inventory_hostname].ansible_host }}
         public_keys: >-
           {{ docker_provisioner_get_public_keys_result.results
              | map(attribute="stdout")
              | list }}
-        container_ip: >-
-          {{ ips[container.0] }}
         container_ssh_port: >-
-          {{ container.1.ssh_port
-             | default(default_ssh_port)
-             | string }}
-        container_ssh_port_suffix: >-
-          {{ (container_ssh_port | string == "22")
-             | ternary("", ":" + container_ssh_port)
-          }}
-        container_ssh_port_mapped: >-
           {{ mapped_ports[container.0] }}
-        container_ssh_port_mapped_suffix: >-
-          {{ (container_ssh_port_mapped | string == "22")
-             | ternary("", ":" + container_ssh_port_mapped)
-          }}
+        container_knownhosts_address: >-
+          {{ (container_ssh_port | string == "22")
+             | ternary(host, "[" + host + "]:" + container_ssh_port) }}
+        container_public_key: >-
+          {{ public_keys[container.0]
+             | regex_replace("[^\n].* (.*) ",
+                             container_knownhosts_address + " \1 ") }}
   vars:
     mapped_ports: >-
       {{ docker_provisioner_get_ssh_mapped_port_result.results
