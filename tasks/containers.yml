@@ -37,6 +37,7 @@
         groups: >-
           {{ container.1.groups | default([])
              + docker_provisioner_container_groups }}
+        docker_host: "{{ inventory_hostname }}"
         docker_ip: >-
           {{ docker_provisioner_get_ip_result.results[container.0].stdout }}
       when: >-
