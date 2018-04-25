@@ -5,7 +5,7 @@
     - name: setup containers docker connector
       add_host:
         name: "{{ container.1.name }}"
-        ansible_host: "{{ ansible_host }}"
+        ansible_host: "{{ docker_provisioner_host_ip }}"
         ansible_port: "{{ ansible_port | default(22) }}"
         docker_ip: >-
           {{ docker_provisioner_containers_ips[container.0] }}
