@@ -51,7 +51,8 @@ docker_provisioner_images_provisioning_method: sequential
 #   ansible_password: root     # Ansible password to connect the container
 #   groups:                    # List of groups where to add the provisioned containers
 #     - containers             # containers
-#   max_provisioning_time: 120 # Maximum asynchronous provisioning time }
+#   max_provisioning_time: 120 # Maximum asynchronous provisioning time
+#   public_key_timeout: 5      # Secons to wait for ssh public key }
 
 docker_provisioner_containers: []
 
@@ -101,9 +102,14 @@ docker_provisioner_container_volumes: []
 docker_provisioner_container_published_ports: []
 docker_provisioner_container_ssh_port: ""
 docker_provisioner_container_max_provisioning_time: 200
+docker_provisioner_container_public_key_timeout: 2
 docker_provisioner_container_ansible_user: root
 docker_provisioner_container_ansible_password: root
 docker_provisioner_container_groups: ['docker_provisioner_containers']
+
+# Docker host ip address to use by inventories managed by the role
+
+docker_provisioner_host_ip: "{{ ansible_facts.default_ipv4.address }}"
 
 # If defined, this variable tells to role to create a minimal inventory file
 # containing the deployed containers. Be warned that auth info is contained in
