@@ -1,0 +1,3 @@
+{% for host in ansible_play_hosts %}
+{{ hostvars[host].docker_provisioner_memory_inventory }}{% if not loop.last %},{% endif %}
+{% endfor %}
