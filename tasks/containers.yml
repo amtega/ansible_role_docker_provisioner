@@ -123,7 +123,7 @@
                 label: >-
                   {{ container.name }}
                   {{ ips[container.name] }}
-                  {{ host_ip }}:{{ mapped_ports[container.name] }}}
+                  {{ host_ip }}:{{ mapped_ports[container.name] }}
                 loop_var: container
 
             - name: setup ssh known_hosts entries in engine host
@@ -169,7 +169,9 @@
           {{ lookup('template', 'memory_inventory.j2') | from_yaml }}
 
     - name: gather all ansible-playbook in-memory inventories from all hosts
-      add_host: "{{ item }}"
+      add_host:
+        name: "{{ item.name }}"
+      args: "{{ item }}"
       when: docker_provisioner_in_memory_inventory
       loop: "{{ inventory }}"
       vars:
