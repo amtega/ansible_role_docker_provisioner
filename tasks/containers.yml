@@ -2,68 +2,59 @@
 # Setup docker containers
 
 - block:
-    # - name: save ssh host port mapping of the containers to be removed
-    #   shell: >-
-    #     {{ command_start
-    #        + " "
-    #        + '"'
-    #        + container.ssh_port
-    #          | default(docker_provisioner_container_ssh_port)
-    #          | string
-    #        + "/tcp"
-    #        + '"'
-    #        + command_end
-    #        + " "
-    #        + container.name }}
-    #   when: >-
-    #     container.state
-    #     | default(docker_provisioner_container_state)
-    #     in ["present", "started"]
-    #   register: docker_provisioner_get_ssh_mapped_port_result
-    #   changed_when: false
-    #   failed_when: false
-    #   loop: "{{ ssh_containers_absent_stopped }}"
-    #   loop_control:
-    #     label: >-
-    #       {{ container.name }}
-    #       {{ docker_provisioner_containers_ips[container.name] }}
-    #     loop_var: container
-    #   check_mode: no
-    #   vars:
-    #     command_start: >-
-    #       docker inspect --format='{''{(index (index .NetworkSettings.Ports
-    #     command_end: >-
-    #       ) 0).HostPort}''}'
+    - name: get ip addresses of the containers to be removed
+      import_tasks: containers_get_ips.yml
+      vars:
+        docker_provisioner_get_ips_task_suffix: >-
+          of the containers to be removed
+        docker_provisioner_get_ips_fact_name: >-
+          docker_provisioner_containers_absent_stopped_ips
+        docker_provisioner_get_ips_containers: >-
+          {{ containers_state_absent_stopped }}
 
-    - import_tasks: "{{ docker_provisioner_containers_provisioning_include }}"
+    - name: get ssh mapped ports of the containers to be removed
+      import_tasks: containers_get_ports.yml
+      vars:
+        docker_provisioner_get_ports_suffix: >-
+          of the containers to be removed
+        docker_provisioner_get_ports_fact_name: >-
+          docker_provisioner_containers_absent_stopped_ssh_mapped_ports
+        docker_provisioner_get_ports_containers: >-
+          {{ ssh_containers_absent_stopped }}
+        docker_provisioner_get_ports_ips: >-
+          {{ docker_provisioner_containers_absent_stopped_ips }}
+
+    - name: provisione containers
+      import_tasks: "{{ docker_provisioner_containers_provisioning_include }}"
       vars:
         method: "{{ docker_provisioner_containers_provisioning_method }}"
         docker_provisioner_containers_provisioning_include: >-
           {{ (method == "asynchronous")
-             | ternary("containers_asynchronous.yml",
-                       "containers_sequential.yml") }}
+             | ternary("containers_provisione_asynchronous.yml",
+                       "containers_provisione_sequential.yml") }}
 
     - block:
-        - name: get provisioned containers ip addresses
-          shell: >-
-            docker inspect --format='{''{.NetworkSettings.IPAddress}''}'
-            {{ container.name }}
-          register: docker_provisioner_provisioned_get_ip_result
-          when: >-
-            container.state
-            | default(docker_provisioner_container_state)
-            in ["present", "started"]
-          loop: "{{ containers_state_present_started }}"
-          loop_control:
-            label: "{{ container.name }}"
-            loop_var: container
-          changed_when: false
-          check_mode: no
+        - name: get ip addresses of the provisioned containers
+          import_tasks: containers_get_ips.yml
+          vars:
+            docker_provisioner_get_ips_task_suffix: >-
+              of the provisioned containers
+            docker_provisioner_get_ips_fact_name: >-
+              docker_provisioner_containers_ips
+            docker_provisioner_get_ips_containers: >-
+              {{ containers_state_present_started }}
 
-        - name: setup fact with containers ips
-          set_fact:
-            docker_provisioner_containers_ips: >-
-              {{ lookup('template', 'containers_ips.j2') | from_yaml }}
+        - name: get ssh mapped ports of the provisioned containers
+          import_tasks: containers_get_ports.yml
+          vars:
+            docker_provisioner_get_ports_suffix: >-
+              of the provisioned containers
+            docker_provisioner_get_ports_fact_name: >-
+              docker_provisioner_containers_ssh_mapped_ports
+            docker_provisioner_get_ports_containers: >-
+              {{ ssh_containers_present_started }}
+            docker_provisioner_get_ports_ips: >-
+              {{ docker_provisioner_containers_ips }}
 
         - name: get containers ssh host port mapping
           shell: >-
@@ -97,11 +88,6 @@
               docker inspect --format='{''{(index (index .NetworkSettings.Ports
             command_end: >-
               ) 0).HostPort}''}'
-
-        - name: setup fact with containers to host ssh port mapping
-          set_fact:
-            docker_provisioner_containers_ssh_mapped_ports: >-
-              {{ lookup('template', 'ssh_mapped_ports.j2') | from_yaml }}
 
         - name: create .ssh directory
           file:
@@ -219,7 +205,7 @@
          + (docker_provisioner_container_state in ["absent", "stopped"])
            | ternary(containers_state_undefined, []) }}
     ssh_containers_absent_stopped: >-
-      {{ containers_state_present_started
+      {{ containers_state_absent_stopped
          | selectattr("ssh_port", "defined")
          | list }}
     containers_state_present_started: >-
