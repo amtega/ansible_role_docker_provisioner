@@ -1,3 +1,8 @@
+[
 {% for host in ansible_play_hosts %}
-{{ hostvars[host].docker_provisioner_memory_inventory }}{% if not loop.last %},{% endif %}
+{% set outer_loop = loop %}
+{% for container in hostvars[host].docker_provisioner_memory_inventory %}
+{{ container }}{% if not loop.last or not outer_loop.last %},{% endif %}
 {% endfor %}
+{% endfor %}
+]

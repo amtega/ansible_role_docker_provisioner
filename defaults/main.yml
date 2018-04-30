@@ -52,9 +52,7 @@ docker_provisioner_images_provisioning_method: sequential
 #   groups:                    # List of groups where to add the provisioned containers
 #     - containers             # containers
 #   max_provisioning_time: 120 # Maximum asynchronous provisioning time
-#   pkey_control_host: true    # Register public key in ansible known_hosts
-#   pkey_engine_host:  true    # Register public key in engine known_hosts
-#   public_key_timeout: 5      # Secons to wait for ssh public key }
+#   public_key_scan_timeout: 5 # Seconds to wait for ssh public key scan }
 
 docker_provisioner_containers: []
 
@@ -104,12 +102,11 @@ docker_provisioner_container_volumes: []
 docker_provisioner_container_published_ports: []
 docker_provisioner_container_ssh_port: ""
 docker_provisioner_container_max_provisioning_time: 200
-docker_provisioner_container_pkey_control_host: true
-docker_provisioner_container_pkey_engine_host:  true
-docker_provisioner_container_pkey_timeout: 2
+docker_provisioner_container_public_key_scan_timeout: 2
 docker_provisioner_container_ansible_user: root
 docker_provisioner_container_ansible_password: root
-docker_provisioner_container_groups: ['docker_provisioner_containers']
+docker_provisioner_container_groups:
+  - "docker_provisioner_containers"
 
 # Generate ansible-playbook in-memory info from containers with add_host
 # Take into account that add_host module bypasses the play host loop and only
@@ -123,8 +120,20 @@ docker_provisioner_in_memory_inventory: true
 
 docker_provisioner_host_ip: "{{ ansible_facts.default_ipv4.address }}"
 
+# List of machines to update ssh known_hosts with deployed containers public
+# keys
+
+docker_provisioner_known_hosts_dest:
+  - "{{ inventory_hostname }}"
+
 # If defined, this variable tells to role to create a minimal inventory file
 # containing the deployed containers. Be warned that auth info is contained in
 # clear text in this file.
 
 #docker_provisioner_inventory:
+
+# List of machines where the minimal inventory file detailed before must be
+# created
+
+docker_provisioner_inventory_dest:
+  - "{{ inventory_hostname }}"

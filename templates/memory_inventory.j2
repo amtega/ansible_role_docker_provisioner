@@ -1,4 +1,4 @@
-{% for container in docker_provisioner_containers %}
+{% for container in containers_state_present_started %}
 - name: "{{ container.name }}"
   ansible_host: "{{ docker_provisioner_host_ip }}"
   ansible_user: "{{ container.ansible_user | default(docker_provisioner_container_ansible_user) }}"

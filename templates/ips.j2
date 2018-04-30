@@ -1,3 +1,0 @@
-{% for container in query('indexed_items', docker_provisioner_containers) %}
-"{{ container.1.name }}": "{{ docker_provisioner_get_ip_result.results[container.0].stdout }}"
-{% endfor %}

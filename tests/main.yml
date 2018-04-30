@@ -27,6 +27,10 @@
     - role: amtega.docker_engine
     - role: amtega.docker_presets
   tasks:
+    - name: setup fact to store test state file
+      set_fact:
+        test_state_file: /tmp/docker_provisioner_role_test.yml
+
     - name: check test state file
       stat:
         path: "{{ test_state_file }}"
@@ -59,7 +63,7 @@
                  | list
                  | docker_presets_randomize_names }}
 
-        - name: save generate presets into state file
+        - name: save generate presets info state file
           copy:
             dest: "{{ test_state_file }}"
             content: "{{ test_state | to_yaml }}"
@@ -89,8 +93,6 @@
           vars:
             state: "{{ load_stat_file_result.stdout | from_yaml }}"
       when: check_test_state_file.stat.exists
-  vars:
-    test_state_file: /tmp/docker_provisioner_role_test.yml
   tags:
     - idempotence
 
@@ -102,12 +104,14 @@
       docker_provisioner_containers: >-
         {{ docker_provisioner_containers_no_ssh }}
       docker_provisioner_container_state: started
+      docker_provisioner_in_memory_inventory: false
 
     - role: amtega.docker_provisioner
       docker_provisioner_containers_provisioning_method: sequential
       docker_provisioner_containers: >-
         {{ docker_provisioner_containers_ssh }}
       docker_provisioner_container_state: started
+      docker_provisioner_in_memory_inventory: true
   tags:
     - idempotence
 
@@ -119,12 +123,19 @@
       docker_provisioner_containers: >-
         {{ docker_provisioner_containers_no_ssh }}
       docker_provisioner_container_state: absent
+      docker_provisioner_in_memory_inventory: false
 
     - role: amtega.docker_provisioner
       docker_provisioner_containers_provisioning_method: sequential
       docker_provisioner_containers: >-
         {{ docker_provisioner_containers_ssh }}
       docker_provisioner_container_state: absent
+      docker_provisioner_in_memory_inventory: true
+  tasks:
+    - name: remove presets info state file
+      file:
+        path: "{{ test_state_file }}"
+        state: absent
 
 - name: cleanup vagrant sandbox
   hosts: localhost
