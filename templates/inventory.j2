@@ -1,0 +1,27 @@
+{{ ansible_managed | comment }}
+
+all:
+  children:
+{% for group in inventory
+                | map(attribute="groups")
+                | list
+                | flatten
+                | unique %}
+    {{ group }}:
+      hosts:
+{% for container in inventory %}
+{% if group in container.groups %}
+        {{ container.name }}:
+          ansible_connection: {{ container.ansible_connection }}
+          ansible_host: {{ container.ansible_host }}
+          ansible_user: "{{ container.ansible_user }}"
+{% if container.ansible_connection == "docker" %}
+          ansible_docker_extra_args: "{{ container.ansible_docker_extra_args }}"
+{% endif %}
+{% if container.ansible_connection == "ssh" %}
+          ansible_port: {{ container.ansible_port }}
+          ansible_password: {{ container.ansible_password }}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}

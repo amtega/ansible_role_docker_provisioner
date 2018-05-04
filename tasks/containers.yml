@@ -2,27 +2,8 @@
 # Setup docker containers
 
 - block:
-    - name: get ip addresses of the containers to be removed
-      import_tasks: containers_get_ips.yml
-      vars:
-        docker_provisioner_get_ips_task_suffix: >-
-          of the containers to be removed
-        docker_provisioner_get_ips_fact_name: >-
-          docker_provisioner_containers_absent_stopped_ips
-        docker_provisioner_get_ips_containers: >-
-          {{ containers_state_absent_stopped }}
-
-    - name: get ssh mapped ports of the containers to be removed
-      import_tasks: containers_get_ports.yml
-      vars:
-        docker_provisioner_get_ports_suffix: >-
-          of the containers to be removed
-        docker_provisioner_get_ports_fact_name: >-
-          docker_provisioner_containers_absent_stopped_ssh_mapped_ports
-        docker_provisioner_get_ports_containers: >-
-          {{ ssh_containers_absent_stopped }}
-        docker_provisioner_get_ports_ips: >-
-          {{ docker_provisioner_containers_absent_stopped_ips }}
+    - name: get current containers facts
+      import_tasks: containers_facts.yml
 
     - name: provisione containers
       import_tasks: "{{ docker_provisioner_containers_provisioning_include }}"
@@ -30,97 +11,76 @@
         method: "{{ docker_provisioner_containers_provisioning_method }}"
         docker_provisioner_containers_provisioning_include: >-
           {{ (method == "asynchronous")
-             | ternary("containers_provisione_asynchronous.yml",
-                       "containers_provisione_sequential.yml") }}
+             | ternary("containers_asynchronous.yml",
+                       "containers_sequential.yml") }}
 
     - block:
-        - name: get ip addresses of the provisioned containers
-          import_tasks: containers_get_ips.yml
-          vars:
-            docker_provisioner_get_ips_task_suffix: >-
-              of the provisioned containers
-            docker_provisioner_get_ips_fact_name: >-
-              docker_provisioner_containers_ips
-            docker_provisioner_get_ips_containers: >-
-              {{ containers_state_present_started }}
-
-        - name: get ssh mapped ports of the provisioned containers
-          import_tasks: containers_get_ports.yml
-          vars:
-            docker_provisioner_get_ports_suffix: >-
-              of the provisioned containers
-            docker_provisioner_get_ports_fact_name: >-
-              docker_provisioner_containers_ssh_mapped_ports
-            docker_provisioner_get_ports_containers: >-
-              {{ ssh_containers_present_started }}
-            docker_provisioner_get_ports_ips: >-
-              {{ docker_provisioner_containers_ips }}
+        - name: refresh provisioned containers facts
+          import_tasks: containers_facts.yml
 
         - name: create .ssh directory
           file:
             path: "~/.ssh"
             state: directory
             mode: 0700
-          when: ssh_containers_present_started | length > 0
-
-        - name: gather containers ssh public keys
-          shell: >-
-            ssh-keyscan \
-            -T \
-            {{ container.public_key_scan_timeout
-               | default(default_public_key_scan_timeout) }} \
-            -p {{ mapped_ports[container.name] }} \
-            {{ docker_provisioner_host_ip }}
-          changed_when: false
-          register: docker_provisioner_get_public_keys_result
-          when: docker_provisioner_known_hosts_dest | length > 0
-          loop: "{{ ssh_containers_present_started }}"
-          loop_control:
-            label: >-
-              {{ container.name }}
-              {{ ips[container.name] }}
-              {{ host_ip }}:{{ mapped_ports[container.name] }}
-            loop_var: container
-          check_mode: no
-          vars:
-            default_public_key_scan_timeout: >-
-              {{ docker_provisioner_container_public_key_scan_timeout }}
-
-        - name: setup fact with containers ssh public keys
-          set_fact:
-            docker_provisioner_containers_ssh_public_keys: >-
-              {{ lookup('template', 'ssh_public_keys.j2') | from_yaml }}
+          when: >-
+            docker_provisioner_containers_facts
+            | selectattr("ansible_port", "defined")
+            | list | length > 0
 
         - name: setup ssh known_hosts entries
           known_hosts:
-            name: "[{{ host_ip }}]:{{ mapped_ports[item.1.name] }}"
-            key: "{{ public_keys[item.1.name] | default('') }}"
-            state: present
+            name: >-
+              {{ "["
+                 + docker_provisioner_host_address
+                 + "]:"
+                 + item.1.ansible_port | string }}
+            key: "{{ item.1.ssh_public_keys | default('') }}"
+            state: >-
+              {{ (item.1.state
+                  | default(docker_provisioner_container_state)
+                  == "started")
+                 | ternary("present",
+                           (item.1.state
+                            | default(docker_provisioner_container_state)
+                            == "stopped")
+                           | ternary("absent", item.1.state) ) }}
           loop: >-
             {{ query(
                  'nested',
                   docker_provisioner_known_hosts_dest,
-                  ssh_containers_present_started) }}
+                  docker_provisioner_containers_facts
+                  | selectattr("ansible_port", "defined")
+                  | list) }}
           loop_control:
             label: >-
               {{ item.1.name }}
-              {{ ips[item.1.name] }}
-              {{ host_ip }}:{{ mapped_ports[item.1.name] }}
-          vars:
-            public_keys: >-
-              {{ docker_provisioner_containers_ssh_public_keys }}
+              {{ item.1.docker_ip }}
+              {{ docker_provisioner_host_address }}:{{ item.1.ansible_port }}
           delegate_to: "{{ item.0 }}"
-      vars:
-        ips: "{{ docker_provisioner_containers_ips }}"
-        host_ip: "{{ docker_provisioner_host_ip }}"
-        mapped_ports: "{{ docker_provisioner_containers_ssh_mapped_ports }}"
 
-    - name: setup fact with containers ansible-playbook in-memory info
-      set_fact:
-        docker_provisioner_memory_inventory: >-
-          {{ lookup('template', 'memory_inventory.j2') | from_yaml }}
+    - name: setup ansible-playbook in-memory inventory for non ssh containers
+      local_action: add_host
+      args:
+        name: "{{ container.name }}"
+        ansible_host: "{{ container.ansible_host }}"
+        ansible_user: "{{ container.ansible_user }}"
+        groups: "{{ container.groups }}"
+        docker_ip: "{{ container.docker_ip }}"
+        ansible_connection: "{{ container.ansible_connection }}"
+        ansible_docker_extra_args: "{{ container.ansible_docker_extra_args }}"
+      when: docker_provisioner_in_memory_inventory
+      loop: >-
+        {{ docker_provisioner_containers_facts
+           | selectattr("ansible_connection", "equalto", "docker")
+           | list }}
+      loop_control:
+        label: >-
+          {{ container.name }}
+          {{ container.docker_ip }}
+        loop_var: container
 
-    - name: gather all ansible-playbook in-memory inventories from all hosts
+    - name: setup ansible-playbook in-memory inventory for ssh containers
       local_action: add_host
       args:
         name: "{{ container.name }}"
@@ -128,64 +88,34 @@
         ansible_user: "{{ container.ansible_user }}"
         ansible_password: "{{ container.ansible_password }}"
         groups: "{{ container.groups }}"
-        docker_host: "{{ container.docker_host }}"
         docker_ip: "{{ container.docker_ip }}"
-        ansible_port: "{{ container.ansible_port }}"
+        ansible_port: >-
+          {{ container.ansible_port
+             | default(docker_provisioner_container_ssh_port) }}
         ansible_connection: "{{ container.ansible_connection }}"
         ssh_public_keys: "{{ container.ssh_public_keys | default('') }}"
       when: docker_provisioner_in_memory_inventory
-      loop: "{{ inventory }}"
+      loop: >-
+        {{ docker_provisioner_containers_facts
+           | selectattr("ansible_connection", "equalto", "ssh")
+           | list }}
       loop_control:
         label: >-
           {{ container.name }}
           {{ container.docker_ip }}
-          {{ (container.ssh_public_keys | default([]) | length > 0)
-             | ternary(docker_provisioner_host_ip
-                       + ":"
-                       + container.ansible_port,
-                       "") }}
+          {{ docker_provisioner_host_address }}:{{ container.ansible_port }}
         loop_var: container
-      vars:
-        inventory: >-
-          {{ lookup('template', 'all_memory_inventories.j2') | from_yaml }}
 
     - name: save inventory file with the deployed containers
       template:
-        src: file_inventory.j2
+        src: inventory.j2
         dest: "{{ docker_provisioner_inventory }}"
         backup: no
-      loop: "{{ docker_provisioner_inventory_dest }}"
       when:
         - docker_provisioner_inventory is defined
         - docker_provisioner_inventory | length > 0
-      delegate_to: "{{ item }}"
-  vars:
-    containers_state_undefined: >-
-      {{ docker_provisioner_containers
-         | selectattr("state", "undefined")
-         | list }}
-    containers_state_absent_stopped: >-
-      {{ docker_provisioner_containers
-         | difference(containers_state_undefined)
-         | selectattr("state", "in", ["absent", "stopped"])
-         | list
-         + (docker_provisioner_container_state in ["absent", "stopped"])
-           | ternary(containers_state_undefined, []) }}
-    ssh_containers_absent_stopped: >-
-      {{ containers_state_absent_stopped
-         | selectattr("ssh_port", "defined")
-         | list }}
-    containers_state_present_started: >-
-      {{ docker_provisioner_containers
-         | difference(containers_state_undefined)
-         | selectattr("state", "in", ["present", "started"])
-         | list
-         + (docker_provisioner_container_state in ["present", "started"])
-           | ternary(containers_state_undefined, []) }}
-    ssh_containers_present_started: >-
-      {{ containers_state_present_started
-         | selectattr("ssh_port", "defined")
-         | list }}
+      vars:
+        inventory: "{{ docker_provisioner_containers_facts }}"
   tags:
     - role::docker_provisioner
     - role::docker_provisioner::containers

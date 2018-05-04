@@ -49,8 +49,11 @@ docker_provisioner_images_provisioning_method: sequential
 #                              # the running inventory for direct management
 #   ansible_user: root         # Ansible user to connect the container
 #   ansible_password: root     # Ansible password to connect the container
-#   groups:                    # List of groups where to add the provisioned containers
+#   groups:                    # List of groups where to add the provisioned
 #     - containers             # containers
+#   groups_unmanaged:          # List of groups where to add the discovered
+#     - unmanaged_containers   # containers that are not in the list
+#                              # to provisione
 #   max_provisioning_time: 120 # Maximum asynchronous provisioning time
 #   public_key_scan_timeout: 5 # Seconds to wait for ssh public key scan }
 
@@ -107,6 +110,8 @@ docker_provisioner_container_ansible_user: root
 docker_provisioner_container_ansible_password: root
 docker_provisioner_container_groups:
   - "docker_provisioner_containers"
+docker_provisioner_container_groups_unmanaged:
+  - "docker_provisioner_containers_unamanaged"
 
 # Generate ansible-playbook in-memory info from containers with add_host
 # Take into account that add_host module bypasses the play host loop and only
@@ -116,9 +121,14 @@ docker_provisioner_container_groups:
 
 docker_provisioner_in_memory_inventory: true
 
-# Docker host ip address to use by inventories managed by the role
+# Ip address where docker host daemon is listening or where containers ports
+# are bound
 
-docker_provisioner_host_ip: "{{ ansible_facts.default_ipv4.address }}"
+docker_provisioner_host_address: "{{ ansible_facts.default_ipv4.address }}"
+
+# Port where docker host daemon is listening
+
+docker_provisioner_host_port: 2375
 
 # List of machines to update ssh known_hosts with deployed containers public
 # keys
@@ -131,9 +141,3 @@ docker_provisioner_known_hosts_dest:
 # clear text in this file.
 
 #docker_provisioner_inventory:
-
-# List of machines where the minimal inventory file detailed before must be
-# created
-
-docker_provisioner_inventory_dest:
-  - "{{ inventory_hostname }}"

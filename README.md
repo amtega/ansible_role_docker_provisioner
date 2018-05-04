@@ -14,10 +14,7 @@ A list of all the default variables for this role is available in `defaults/main
 
 The role setups the following facts:
 
-- `docker_provisioner_containers_ips`: dict with the ip address assigned to each container.
-- `docker_provisioner_containers_ssh_mapped_ports`: dict with the mapped ssh port assigned to each container (only for ssh enabled containers).
-- `docker_provisioner_containers_ssh_public_keys`: dict with the ssh public key for each container (only for ssh enabled containers).
-- `docker_provisioner_memory_inventory`: list of dicts with the containers inventory.
+- `docker_provisioner_containers_facts`: list of dicts with the discovered containers facts.
 
 ## Dependencies
 

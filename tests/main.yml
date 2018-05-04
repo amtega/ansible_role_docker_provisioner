@@ -27,6 +27,14 @@
     - role: amtega.docker_engine
     - role: amtega.docker_presets
   tasks:
+    - name: install required packages
+      package:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - ansible
+        - sshpass
+
     - name: setup fact to store test state file
       set_fact:
         test_state_file: /tmp/docker_provisioner_role_test.yml
@@ -96,26 +104,74 @@
   tags:
     - idempotence
 
-- name: test docker_provisioner role provisioning
+- name: test async ssh provisioning and in memory inventory disabled
   hosts: vagrant_sandbox_vms
   roles:
     - role: amtega.docker_provisioner
       docker_provisioner_containers_provisioning_method: asynchronous
-      docker_provisioner_containers: >-
-        {{ docker_provisioner_containers_no_ssh }}
+      docker_provisioner_containers: "{{ docker_provisioner_containers_ssh }}"
       docker_provisioner_container_state: started
       docker_provisioner_in_memory_inventory: false
+  vars:
+    docker_provisioner_inventory: /tmp/docker_inventory
+  tasks:
+    - name: check provisioned containers connection
+      shell: >-
+        ansible -m setup
+        -i {{ docker_provisioner_inventory }}
+        {{ container.name }}
+      changed_when: false
+      loop: >-
+        {{ docker_provisioner_containers_facts
+           | selectattr("groups.0", "equalto", "docker_provisioner_containers")
+           | list }}
+      loop_control:
+        loop_var: container
+        label: >-
+          {{ container.name }}
+          {{ container.ansible_connection }}
+          {{ container.ansible_host }}{{ (container.ansible_connection == "ssh")
+                                          | ternary(":"
+                                                    + container.ansible_port
+                                                      | default('')
+                                                      | string
+                                                    , "") }}
 
+- name: test sequential non-ssh provisioning and in memory inventory eanbled
+  hosts: vagrant_sandbox_vms
+  roles:
     - role: amtega.docker_provisioner
       docker_provisioner_containers_provisioning_method: sequential
       docker_provisioner_containers: >-
-        {{ docker_provisioner_containers_ssh }}
+        {{ docker_provisioner_containers_no_ssh }}
       docker_provisioner_container_state: started
       docker_provisioner_in_memory_inventory: true
-  tags:
-    - idempotence
+  vars:
+    docker_provisioner_inventory: /tmp/docker_inventory
+  tasks:
+    - name: check provisioned containers connection
+      shell: >-
+        ansible -m setup
+        -i {{ docker_provisioner_inventory }}
+        {{ container.name }}
+      changed_when: false
+      loop: >-
+        {{ docker_provisioner_containers_facts
+           | selectattr("name", "in", groups["docker_provisioner_containers"])
+           | list }}
+      loop_control:
+        loop_var: container
+        label: >-
+          {{ container.name }}
+          {{ container.ansible_connection }}
+          {{ container.ansible_host }}{{ (container.ansible_connection == "ssh")
+                                          | ternary(":"
+                                                    + container.ansible_port
+                                                      | default('')
+                                                      | string
+                                                    , "") }}
 
-- name: test docker_provisioner role cleanup
+- name: test cleanup
   hosts: vagrant_sandbox_vms
   roles:
     - role: amtega.docker_provisioner
@@ -132,6 +188,19 @@
       docker_provisioner_container_state: absent
       docker_provisioner_in_memory_inventory: true
   tasks:
+    - name: get containers
+      shell: docker ps -a -q
+      register: get_containers_result
+
+    - name: check that containers were removed
+      assert:
+        that: not get_containers_result.stdout is search(item)
+      loop: >-
+        {{ (docker_provisioner_containers_ssh
+            + docker_provisioner_containers_no_ssh)
+           | map(attribute="name")
+           | list }}
+
     - name: remove presets info state file
       file:
         path: "{{ test_state_file }}"
