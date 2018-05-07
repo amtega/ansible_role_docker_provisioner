@@ -78,8 +78,10 @@
     - {{ group }}
 {% endfor %}
 
-{% if matching_container_found %}
+{% if "ansible_user" in container_attributes %}
   ansible_user: "{{ container_attributes.ansible_user }}"
+{% endif %}
+{% if "ansible_password" in container_attributes %}
   ansible_password: "{{ container_attributes.ansible_password }}"
 {% endif %}
 

@@ -15,13 +15,17 @@ all:
         {{ container.name }}:
           ansible_connection: {{ container.ansible_connection }}
           ansible_host: {{ container.ansible_host }}
+{% if "ansible_user" in container %}
           ansible_user: "{{ container.ansible_user }}"
+{% endif %}
 {% if container.ansible_connection == "docker" %}
           ansible_docker_extra_args: "{{ container.ansible_docker_extra_args }}"
 {% endif %}
 {% if container.ansible_connection == "ssh" %}
           ansible_port: {{ container.ansible_port }}
+{% if "ansible_password" in container %}
           ansible_password: {{ container.ansible_password }}
+{% endif %}
 {% endif %}
 {% endif %}
 {% endfor %}
