@@ -64,7 +64,6 @@
       args:
         name: "{{ container.name }}"
         ansible_host: "{{ container.ansible_host }}"
-        ansible_user: "{{ container.ansible_user }}"
         groups: "{{ container.groups }}"
         docker_ip: "{{ container.docker_ip }}"
         ansible_connection: "{{ container.ansible_connection }}"
