@@ -108,7 +108,7 @@
 
     - name: save inventory file with the deployed containers
       template:
-        src: inventory.j2
+        src: inventory.yml.j2
         dest: "{{ docker_provisioner_inventory }}"
         backup: no
       when:
