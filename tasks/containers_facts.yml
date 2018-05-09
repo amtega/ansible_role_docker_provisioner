@@ -6,6 +6,7 @@
       shell: docker ps -a -q
       register: docker_provisioner_get_containers_result
       changed_when: false
+      check_mode: no
 
     - name: inspect docker containers
       shell: >-
@@ -13,6 +14,7 @@
         {{ docker_provisioner_get_containers_result.stdout_lines | join(" ") }}
       register: docker_provisioner_inspect_result
       when: docker_provisioner_get_containers_result.stdout | length > 0
+      changed_when: false
       check_mode: no
 
     - name: get containers ssh public keys
