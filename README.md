@@ -12,6 +12,10 @@ This is an [Ansible](http://www.ansible.com) role to provisione docker images an
 
 A list of all the default variables for this role is available in `defaults/main.yml`.
 
+The role setups the following facts:
+
+- `docker_provisioner_containers_facts`: list of dicts with the facts about discovered containers.
+
 ## Dependencies
 
 None.

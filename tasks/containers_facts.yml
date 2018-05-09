@@ -1,0 +1,53 @@
+---
+# Get current containers facts
+
+- block:
+    - name: get docker containers
+      shell: docker ps -a -q
+      register: docker_provisioner_get_containers_result
+      changed_when: false
+      check_mode: no
+
+    - name: inspect docker containers
+      shell: >-
+        docker inspect
+        {{ docker_provisioner_get_containers_result.stdout_lines | join(" ") }}
+      register: docker_provisioner_inspect_result
+      when: docker_provisioner_get_containers_result.stdout | length > 0
+      changed_when: false
+      check_mode: no
+
+    - name: get containers ssh public keys
+      shell: >-
+        ssh-keyscan \
+        -T \
+        {{ container.public_key_scan_timeout
+           | default(default_public_key_scan_timeout) }} \
+        -p {{ container.ansible_port }} \
+        {{ docker_provisioner_host_address }}
+      changed_when: false
+      register: docker_provisioner_get_public_keys_result
+      when: docker_provisioner_known_hosts_dest | length > 0
+      loop: >-
+        {{ containers
+           | selectattr("ansible_port", "defined")
+           | list }}
+      loop_control:
+        label: >-
+          {{ container.name }}
+          {{ container.docker_ip }}
+          {{ docker_provisioner_host_address }}:{{ container.ansible_port }}
+        loop_var: container
+      check_mode: no
+      vars:
+        containers: "{{ lookup('template', 'facts.j2') | from_yaml }}"
+        default_public_key_scan_timeout: >-
+          {{ docker_provisioner_container_public_key_scan_timeout }}
+
+    - name: setup fact with containers ansible-playbook in-memory info
+      set_fact:
+        docker_provisioner_containers_facts: >-
+          {{ lookup('template', 'facts.j2') | from_yaml }}
+  tags:
+    - role::docker_provisioner
+    - role::docker_provisioner::containers

@@ -1,0 +1,96 @@
+{% if docker_provisioner_inspect_result is not skipped %}
+
+{% for container in docker_provisioner_inspect_result.stdout | from_json %}
+
+{% set name=container.Name | regex_replace("^/", "") %}
+{% set matching_containers=docker_provisioner_containers
+                           | selectattr("name", "equalto", name)
+                           | list %}
+{% if matching_containers | length > 0 %}
+{% set container_attributes=matching_containers | first %}
+{% set matching_container_found=true %}
+{% else %}
+{% set container_attributes={} %}
+{% set matching_container_found=false %}
+{% endif %}
+
+- name: "{{ name }}"
+  image: "{{ container.Image }}"
+  privileged: "{{ container.HostConfig.Privileged }}"
+  tty: "{{ container.Config.Tty }}"
+  command: "{{ container.Config.Cmd }}"
+  env: "{{ container.Config.Env }}"
+  labels: "{{ container.Config.Labels }}"
+  links: "{{ container.HostConfig.Links }}"
+  volumes: "{{ container.Config.Volumes }}"
+  exposed_ports: "{{ container.Config.ExposedPorts }}"
+  state: "{% if container.State.Status == "running" %}started{% else %}present{% endif %}"
+  docker_ip: {{ container.NetworkSettings.IPAddress }}
+  published_ports:
+
+{% if container.NetworkSettings.Ports is not none %}
+{% set port_mapping_namespace = namespace(ssh_found=false) %}
+{% for port in container.NetworkSettings.Ports %}
+{% if container.NetworkSettings.Ports[port] is sequence %}
+{% for map in container.NetworkSettings.Ports[port]  %}
+{% if port | string | regex_replace("([0-9]+)/.*", "\\1")
+      in [ container_attributes.ssh_port | default('') | string,
+           docker_provisioner_container_ssh_port | string ] %}
+{% set port_mapping_namespace.ssh_found = true %}
+{% set port_mapping_namespace.host_ssh_port = map.HostPort %}
+    - {{ map.HostIp }}:{{ map.HostPort }}:{{ port }}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% if container_attributes.ssh_port | default('') | string + "/tcp"
+      in container.NetworkSettings.Ports %}
+  ssh_port: {{ container_attributes.ssh_port }}
+{% elif docker_provisioner_container_ssh_port in container.NetworkSettings.Ports %}
+  ssh_port: {{ docker_provisioner_container_ssh_port }}
+{% endif %}
+{% endif %}
+
+{% if port_mapping_namespace is defined and port_mapping_namespace.ssh_found %}
+  ansible_connection: ssh
+  ansible_host: {{ docker_provisioner_host_address }}
+  ansible_port: {{ port_mapping_namespace.host_ssh_port }}
+{% else %}
+  ansible_connection: docker
+  ansible_host: {{ name }}
+  ansible_docker_extra_args: >-
+    --host=tcp://{{ docker_provisioner_host_address
+                    + ":"
+                    + docker_provisioner_host_port | string }}
+{% endif %}
+
+{% if docker_provisioner_get_public_keys_result is defined
+      and docker_provisioner_get_public_keys_result.results is defined %}
+  ssh_public_keys: "{{ docker_provisioner_get_public_keys_result.results
+                       | selectattr('container.name', 'equalto', name)
+                       | sum(attribute='stdout_lines', start=[])
+                       | join('\\n') }}"
+{% endif %}
+
+  groups:
+{% for group in container_attributes.groups
+                | default((matching_container_found)
+                          | ternary(docker_provisioner_container_groups,
+                                    docker_provisioner_container_groups_unmanaged)) %}
+    - {{ group }}
+{% endfor %}
+
+{% if matching_container_found %}
+  ansible_user: "{{ container_attributes.ansible_user
+                    | default(docker_provisioner_container_ansible_user) }}"
+  ansible_password: "{{ container_attributes.ansible_password
+                        | default(docker_provisioner_container_ansible_password) }}"
+{% endif %}
+
+{% endfor %}
+
+{% else %}
+
+[]
+
+{% endif %}

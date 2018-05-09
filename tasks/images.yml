@@ -6,8 +6,8 @@
     method: "{{ docker_provisioner_images_provisioning_method }}"
     docker_provisioner_images_provisioning_include: >-
       {{ (method == "asynchronous")
-         | ternary("images_provisioning_asynchronous.yml",
-                   "images_provisioning_sequential.yml") }}
+         | ternary("images_asynchronous.yml",
+                   "images_sequential.yml") }}
   tags:
     - role::docker_provisioner
     - role::docker_provisioner::images
