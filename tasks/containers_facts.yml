@@ -9,7 +9,8 @@
 
     - name: inspect docker containers
       shell: >-
-        docker inspect {{ docker_provisioner_get_containers_result.stdout }}
+        docker inspect
+        {{ docker_provisioner_get_containers_result.stdout_lines | join(" ") }}
       register: docker_provisioner_inspect_result
       when: docker_provisioner_get_containers_result.stdout | length > 0
       check_mode: no
