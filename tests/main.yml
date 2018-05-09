@@ -6,10 +6,10 @@
   roles:
     - role: amtega.vagrant_presets
       vagrant_presets_boxes_json_query: >-
-        [? starts_with(name, `centos-7`)
-           || starts_with(name, `debian-9`)
-           || starts_with(name, `fedora-26`)
-           || starts_with(name, `fedora-27`) ]
+        [? starts_with(name, `centos-7`) ]
+          || starts_with(name, `debian-9`)
+          || starts_with(name, `fedora-26`)
+          || starts_with(name, `fedora-27`) ]
   tags:
     - sandbox
 
@@ -17,13 +17,13 @@
   hosts: localhost
   roles:
     - role: amtega.vagrant_sandbox
-      docker_sandbox_state: started
+      vagrant_sandbox_state: started
   tags:
     - sandbox
 
 - name: setup software and config requirements in sandbox hosts
   hosts: vagrant_sandbox_vms
-  roles:
+
     - role: amtega.docker_engine
     - role: amtega.docker_presets
   tasks:
@@ -85,7 +85,7 @@
       when: not check_test_state_file.stat.exists
 
     - block:
-        - name: load docker_provisioner presets from state file
+        - name: read test state file
           shell: "cat {{ test_state_file }}"
           changed_when: false
           register: load_stat_file_result
@@ -136,6 +136,8 @@
                                                       | default('')
                                                       | string
                                                     , "") }}
+  tags:
+    - idempotence
 
 - name: test sequential non-ssh provisioning and in memory inventory eanbled
   hosts: vagrant_sandbox_vms
