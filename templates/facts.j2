@@ -1,3 +1,5 @@
+{% if docker_provisioner_inspect_result is not skipped %}
+
 {% for container in docker_provisioner_inspect_result.stdout | from_json %}
 
 {% set name=container.Name | regex_replace("^/", "") %}
@@ -86,3 +88,9 @@
 {% endif %}
 
 {% endfor %}
+
+{% else %}
+
+[]
+
+{% endif %}

@@ -2,10 +2,16 @@
 # Get current containers facts
 
 - block:
-    - name: inspect containers
+    - name: get docker containers
+      shell: docker ps -a -q
+      register: docker_provisioner_get_containers_result
+      changed_when: false
+
+    - name: inspect docker containers
       shell: >-
-        docker inspect `docker ps -a -q`
+        docker inspect {{ docker_provisioner_get_containers_result.stdout }}
       register: docker_provisioner_inspect_result
+      when: docker_provisioner_get_containers_result.stdout | length > 0
       check_mode: no
 
     - name: get containers ssh public keys
@@ -20,7 +26,9 @@
       register: docker_provisioner_get_public_keys_result
       when: docker_provisioner_known_hosts_dest | length > 0
       loop: >-
-        {{ containers | selectattr("ansible_port", "defined") | list }}
+        {{ containers
+           | selectattr("ansible_port", "defined")
+           | list }}
       loop_control:
         label: >-
           {{ container.name }}
@@ -36,8 +44,7 @@
     - name: setup fact with containers ansible-playbook in-memory info
       set_fact:
         docker_provisioner_containers_facts: >-
-          {{ lookup('template', 'facts.j2')
-             | from_yaml }}
+          {{ lookup('template', 'facts.j2') | from_yaml }}
   tags:
     - role::docker_provisioner
     - role::docker_provisioner::containers
