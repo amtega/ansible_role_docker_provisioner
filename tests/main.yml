@@ -7,9 +7,9 @@
     - role: amtega.vagrant_presets
       vagrant_presets_boxes_json_query: >-
         [? starts_with(name, `centos-7`)
-          || starts_with(name, `debian-9`)
-          || starts_with(name, `fedora-26`)
-          || starts_with(name, `fedora-27`) ]
+           || starts_with(name, `debian-9`)
+           || starts_with(name, `fedora-26`)
+           || starts_with(name, `fedora-27`) ]
   tags:
     - sandbox
 
@@ -23,7 +23,7 @@
 
 - name: setup software and config requirements in sandbox hosts
   hosts: vagrant_sandbox_vms
-
+  roles:
     - role: amtega.docker_engine
     - role: amtega.docker_presets
   tasks:
