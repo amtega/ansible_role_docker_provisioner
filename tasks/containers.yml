@@ -27,6 +27,8 @@
             docker_provisioner_containers_facts
             | selectattr("ansible_port", "defined")
             | list | length > 0
+          loop: "{{ docker_provisioner_known_hosts_dest }}"
+          delegate_to: "{{ item }}"
 
         - name: setup ssh known_hosts entries
           known_hosts:
@@ -37,13 +39,9 @@
                  + item.1.ansible_port | string }}
             key: "{{ item.1.ssh_public_keys | default('') }}"
             state: >-
-              {{ (item.1.state
-                  | default(docker_provisioner_container_state)
-                  == "started")
+              {{ (container_state == "started")
                  | ternary("present",
-                           (item.1.state
-                            | default(docker_provisioner_container_state)
-                            == "stopped")
+                           (container_state == "stopped")
                            | ternary("absent", item.1.state) ) }}
           loop: >-
             {{ query(
@@ -57,6 +55,9 @@
               {{ item.1.name }}
               {{ item.1.docker_ip }}
               {{ docker_provisioner_host_address }}:{{ item.1.ansible_port }}
+          vars:
+            container_state: >-
+              {{ item.1.state | default(docker_provisioner_container_state) }}
           delegate_to: "{{ item.0 }}"
 
     - name: setup ansible-playbook in-memory inventory for non ssh containers
