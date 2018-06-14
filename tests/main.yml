@@ -8,8 +8,8 @@
       vagrant_presets_boxes_json_query: >-
         [? starts_with(name, `centos-7`)
            || starts_with(name, `debian-9`)
-           || starts_with(name, `fedora-26`)
-           || starts_with(name, `fedora-27`) ]
+           || starts_with(name, `fedora-27`)
+           || starts_with(name, `fedora-28`) ]
   tags:
     - sandbox
 
@@ -59,7 +59,9 @@
                               docker_provisioner_images[0].name)
                  | list
                  | docker_presets_randomize_names
-                 | docker_presets_remove_attributes(["ssh_port"]) }}
+                 | docker_presets_remove_attributes(["ssh_port"])
+                 | docker_presets_add_attributes(
+                      {"networks": [{"name": "bridge"}]}) }}
 
         - name: generate docker_provisioner ssh containers presets
           set_fact:

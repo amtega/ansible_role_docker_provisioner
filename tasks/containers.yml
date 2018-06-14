@@ -70,6 +70,7 @@
         ansible_connection: "{{ container.ansible_connection }}"
         ansible_docker_extra_args: "{{ container.ansible_docker_extra_args }}"
       when: docker_provisioner_in_memory_inventory
+      changed_when: false
       loop: >-
         {{ docker_provisioner_containers_facts
            | selectattr("ansible_connection", "equalto", "docker")
@@ -95,6 +96,7 @@
         ansible_connection: "{{ container.ansible_connection }}"
         ssh_public_keys: "{{ container.ssh_public_keys | default('') }}"
       when: docker_provisioner_in_memory_inventory
+      changed_when: false
       loop: >-
         {{ docker_provisioner_containers_facts
            | selectattr("ansible_connection", "equalto", "ssh")
