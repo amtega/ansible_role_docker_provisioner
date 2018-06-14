@@ -34,6 +34,8 @@ docker_provisioner_images_provisioning_method: sequential
 #   tls: true                  # Secure the connection to the API by using TLS
 #   stop_timeout: 1            # Seconds to wait for the container to stop
 #   tty: true                  # Allocate a pseudo-TTY
+#   networks:                  # List of dicts with the networks the container
+#     name: TestingNet         # belongs to.
 #   exposed_ports: [22]        # List of additional container exposed ports
 #   published_ports: [22]      # List of additional container published ports
 #   command: ""                # Command to execute when the container starts
@@ -92,6 +94,7 @@ docker_provisioner_container_privileged: false
 docker_provisioner_container_tls: true
 docker_provisioner_container_stop_timeout: 1
 docker_provisioner_container_tty: false
+# docker_provisioner_container_networks:
 docker_provisioner_container_exposed_ports: []
 docker_provisioner_container_command: ""
 docker_provisioner_container_env: {}

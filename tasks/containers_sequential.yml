@@ -30,6 +30,10 @@
         tty: >-
           {{ container.tty
              | default(docker_provisioner_container_tty) }}
+        networks: >-
+          {{ container.networks
+             | default(docker_provisioner_container_networks)
+             | default(omit) }}
         exposed_ports: >-
           {{ container.exposed_ports
              | default(docker_provisioner_container_exposed_ports) }}
