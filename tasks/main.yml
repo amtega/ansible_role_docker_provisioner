@@ -1,6 +1,12 @@
 ---
 # Role tasks
 
+- name: sanity checks
+  import_tasks: check.yml
+  tags:
+    - role::docker_provisioner
+    - role::docker_provisioner::check
+
 - name: setup images
   include_tasks: images.yml
   when: docker_provisioner_images | length > 0
