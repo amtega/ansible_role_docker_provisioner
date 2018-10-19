@@ -1,5 +1,6 @@
 ---
 galaxy_info:
+  role_name: docker_provisioner
   author: Juan Antonio Valiño García
   description: Provisione docker images and containers
   company: AMTEGA - Xunta de Galicia
