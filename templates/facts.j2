@@ -23,7 +23,7 @@
   labels: "{{ container.Config.Labels }}"
   links: "{{ container.HostConfig.Links }}"
   volumes: "{{ container.Config.Volumes }}"
-  exposed_ports: "{{ container.Config.ExposedPorts }}"
+  exposed_ports: "{{ container.Config.ExposedPorts | default([]) }}"
   state: "{% if container.State.Status == "running" %}started{% else %}present{% endif %}"
   docker_ip: {{ container.NetworkSettings.IPAddress }}
   published_ports:
