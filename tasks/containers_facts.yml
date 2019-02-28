@@ -3,13 +3,13 @@
 
 - block:
     - name: get docker containers
-      shell: docker ps -a -q
+      command: docker ps -a -q
       register: docker_provisioner_get_containers_result
       changed_when: false
       check_mode: no
 
     - name: inspect docker containers
-      shell: >-
+      command: >-
         docker inspect
         {{ docker_provisioner_get_containers_result.stdout_lines | join(" ") }}
       register: docker_provisioner_inspect_result
@@ -18,7 +18,7 @@
       check_mode: no
 
     - name: get containers ssh public keys
-      shell: >-
+      command: >-
         ssh-keyscan \
         -T \
         {{ container.public_key_scan_timeout

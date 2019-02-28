@@ -88,7 +88,7 @@
 
     - block:
         - name: read test state file
-          shell: "cat {{ test_state_file }}"
+          command: "cat {{ test_state_file }}"
           changed_when: false
           register: load_stat_file_result
 
@@ -118,7 +118,7 @@
     docker_provisioner_inventory: /tmp/docker_inventory
   tasks:
     - name: check provisioned containers connection
-      shell: >-
+      command: >-
         ansible -m setup
         -i {{ docker_provisioner_inventory }}
         {{ container.name }}
@@ -154,7 +154,7 @@
     docker_provisioner_inventory: /tmp/docker_inventory
   tasks:
     - name: check provisioned containers connection
-      shell: >-
+      command: >-
         ansible -m setup
         -i {{ docker_provisioner_inventory }}
         {{ container.name }}
@@ -193,7 +193,7 @@
       docker_provisioner_in_memory_inventory: true
   tasks:
     - name: get containers
-      shell: docker ps -a -q
+      command: docker ps -a -q
       register: get_containers_result
 
     - name: check that containers were removed
@@ -216,4 +216,5 @@
     - role: amtega.vagrant_sandbox
       vagrant_sandbox_state: absent
   tags:
+    - cleanup
     - sandbox
