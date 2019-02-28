@@ -61,8 +61,7 @@
           delegate_to: "{{ item.0 }}"
 
     - name: setup ansible-playbook in-memory inventory for non ssh containers
-      local_action: add_host
-      args:
+      add_host:
         name: "{{ container.name }}"
         ansible_host: "{{ container.ansible_host }}"
         groups: "{{ container.groups }}"
@@ -80,14 +79,15 @@
           {{ container.name }}
           {{ container.docker_ip }}
         loop_var: container
+      delegate_to: localhost
 
     - name: setup ansible-playbook in-memory inventory for ssh containers
-      local_action: add_host
-      args:
+      add_host:
         name: "{{ container.name }}"
         ansible_host: "{{ container.ansible_host }}"
         ansible_user: "{{ container.ansible_user }}"
         ansible_password: "{{ container.ansible_password }}"
+        ansible_python_interpreter: "{{ container.ansible_python_interpreter }}"
         groups: "{{ container.groups }}"
         docker_ip: "{{ container.docker_ip }}"
         ansible_port: >-
@@ -107,6 +107,7 @@
           {{ container.docker_ip }}
           {{ docker_provisioner_host_address }}:{{ container.ansible_port }}
         loop_var: container
+      delegate_to: localhost
 
     - name: save inventory file with the deployed containers
       template:
