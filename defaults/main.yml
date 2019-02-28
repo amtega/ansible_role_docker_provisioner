@@ -24,40 +24,45 @@ docker_provisioner_images: []
 docker_provisioner_images_provisioning_method: sequential
 
 # List of dicts with the containers to provisione. The dicts must have the
-# following values ( see docker_container module documentation for detais of each
-# option):
+# following values ( see docker_container module documentation for detais of
+# each option):
 #
-# { name: ""                   # Name of the container
-#   image: ""                  # Image to use to start the container
-#   state: present             # Can be started, present, absent and stopped
-#   privileged: true           # Give extended privileges to the container
-#   tls: true                  # Secure the connection to the API by using TLS
-#   stop_timeout: 1            # Seconds to wait for the container to stop
-#   tty: true                  # Allocate a pseudo-TTY
-#   networks:                  # List of dicts with the networks the container
-#     name: TestingNet         # belongs to.
-#   exposed_ports: [22]        # List of additional container exposed ports
-#   published_ports: [22]      # List of additional container published ports
-#   command: ""                # Command to execute when the container starts
-#   env: {}                    # Dictionary with container environment
-#   labels: {}                 # Dictionary with container labels
-#   links: []                  # List of name aliases for linked containers
-#   recreate: false            # Force the re-creation of an existing container
-#   force_kill: false          # Use the kill command when stopping the container
-#   restart: false             # Force the container to be stopped and restarted
-#   volumes: []                # List of volumes to mount within the container
-#   ssh_port: 22               # Port where container listens for ssh
-#                              # If defined the rol will add the coontainer to
-#                              # the running inventory for direct management
-#   ansible_user: root         # Ansible user to connect the container
-#   ansible_password: root     # Ansible password to connect the container
-#   groups:                    # List of groups where to add the provisioned
-#     - containers             # containers
-#   groups_unmanaged:          # List of groups where to add the discovered
-#     - unmanaged_containers   # containers that are not in the list
-#                              # to provisione
-#   max_provisioning_time: 120 # Maximum asynchronous provisioning time
-#   public_key_scan_timeout: 5 # Seconds to wait for ssh public key scan }
+# { name: ""                       # Name of the container
+#   image: ""                      # Image to use to start the container
+#   state: present                 # Can be started, present, absent and stopped
+#   privileged: true               # Give extended privileges to the container
+#   tls: true                      # Secure the connection to the API by using
+                                   # TLS
+#   stop_timeout: 1                # Seconds to wait for the container to stop
+#   tty: true                      # Allocate a pseudo-TTY
+#   networks:                      # List of dicts with the networks the
+#     name: TestingNet             # container belongs to.
+#   exposed_ports: [22]            # List of additional container exposed ports
+#   published_ports: [22]          # List of additional container published
+#                                  # ports
+#   command: ""                    # Command to execute when the container
+#                                  # starts
+#   env: {}                        # Dictionary with container environment
+#   labels: {}                     # Dictionary with container labels
+#   links: []                      # List of name aliases for linked containers
+#   recreate: false                # Force the re-creation
+#   force_kill: false              # Use the kill command when stopping
+#   restart: false                 # Force stop and restart
+#   volumes: []                    # List of volumes to mount
+#   ssh_port: 22                   # Port where container listens for ssh
+#                                  # If defined the role will add the container
+#                                  # to the running inventory
+#   ansible_user: root             # Ansible user to connect the container
+#   ansible_password: root         # Ansible password to connect the container
+#   ansible_python_interpreter: >- # Ansible python interpreter to use
+#     /usr/bin/python3
+#   groups:                        # List of groups where to add the provisioned
+#     - containers                 # containers
+#   groups_unmanaged:              # List of groups where to add the discovered
+#     - unmanaged_containers       # containers that are not in the list
+#                                  # to provisione
+#   max_provisioning_time: 120     # Maximum asynchronous provisioning time
+#   public_key_scan_timeout: 5     # Seconds to wait for ssh public key scan }
 
 docker_provisioner_containers: []
 
@@ -111,6 +116,7 @@ docker_provisioner_container_max_provisioning_time: 200
 docker_provisioner_container_public_key_scan_timeout: 2
 docker_provisioner_container_ansible_user: root
 docker_provisioner_container_ansible_password: root
+docker_provisioner_container_ansible_python_interpreter: /usr/bin/python3
 docker_provisioner_container_groups:
   - "docker_provisioner_containers"
 docker_provisioner_container_groups_unmanaged:
