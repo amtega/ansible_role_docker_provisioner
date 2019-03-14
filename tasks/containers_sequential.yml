@@ -2,7 +2,7 @@
 # Setup docker containers sequentially
 
 - block:
-    - name: sequential docker containers deploy
+    - name: Sequential docker containers deploy
       docker_container:
         name: "{{ container.name }}"
         image: "{{ container.image }}"

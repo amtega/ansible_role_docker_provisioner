@@ -1,7 +1,7 @@
 ---
 # Tasks for testing role
 
-- name: configure vagrant sandbox environment
+- name: Configure vagrant sandbox environment
   hosts: localhost
   roles:
     - role: amtega.vagrant_presets
@@ -13,7 +13,7 @@
   tags:
     - sandbox
 
-- name: run idempotence test
+- name: Run idempotence test
   hosts: localhost
   roles:
     - role: amtega.vagrant_sandbox
@@ -21,13 +21,13 @@
   tags:
     - sandbox
 
-- name: setup software and config requirements in sandbox hosts
+- name: Setup software and config requirements in sandbox hosts
   hosts: vagrant_sandbox_vms
   roles:
     - role: amtega.docker_engine
     - role: amtega.docker_presets
   tasks:
-    - name: install required packages
+    - name: Install required packages
       package:
         name: "{{ item }}"
         state: present
@@ -35,22 +35,22 @@
         - ansible
         - sshpass
 
-    - name: setup fact to store test state file
+    - name: Setup fact to store test state file
       set_fact:
         test_state_file: /tmp/docker_provisioner_role_test.yml
 
-    - name: check test state file
+    - name: Check test state file
       stat:
         path: "{{ test_state_file }}"
       register: check_test_state_file
 
     - block:
-        - name: generate docker_provisioner random images presets
+        - name: Generate docker_provisioner random images presets
           set_fact:
             docker_provisioner_images:
               - "{{ docker_presets_images | random }}"
 
-        - name: generate docker_provisioner no ssh containers presets
+        - name: Generate docker_provisioner no ssh containers presets
           set_fact:
             docker_provisioner_containers_no_ssh: >-
               {{ docker_presets_containers
@@ -63,7 +63,7 @@
                  | docker_presets_add_attributes(
                       {"networks": [{"name": "bridge"}]}) }}
 
-        - name: generate docker_provisioner ssh containers presets
+        - name: Generate docker_provisioner ssh containers presets
           set_fact:
             docker_provisioner_containers_ssh: >-
               {{ docker_presets_containers
@@ -73,7 +73,7 @@
                  | list
                  | docker_presets_randomize_names }}
 
-        - name: save generate presets info state file
+        - name: Save generate presets info state file
           copy:
             dest: "{{ test_state_file }}"
             content: "{{ test_state | to_yaml }}"
@@ -87,12 +87,12 @@
       when: not check_test_state_file.stat.exists
 
     - block:
-        - name: read test state file
+        - name: Read test state file
           command: "cat {{ test_state_file }}"
           changed_when: false
           register: load_stat_file_result
 
-        - name: setup docker_provisioner presets facts
+        - name: Setup docker_provisioner presets facts
           set_fact:
             docker_provisioner_images: >-
               {{ state.docker_provisioner_images }}
@@ -106,7 +106,7 @@
   tags:
     - idempotence
 
-- name: test async ssh provisioning and in memory inventory disabled
+- name: Test async ssh provisioning and in memory inventory disabled
   hosts: vagrant_sandbox_vms
   roles:
     - role: amtega.docker_provisioner
@@ -117,7 +117,7 @@
   vars:
     docker_provisioner_inventory: /tmp/docker_inventory
   tasks:
-    - name: check provisioned containers connection
+    - name: Check provisioned containers connection
       command: >-
         ansible -m setup
         -i {{ docker_provisioner_inventory }}
@@ -141,7 +141,7 @@
   tags:
     - idempotence
 
-- name: test sequential non-ssh provisioning and in memory inventory eanbled
+- name: Test sequential non-ssh provisioning and in memory inventory eanbled
   hosts: vagrant_sandbox_vms
   roles:
     - role: amtega.docker_provisioner
@@ -153,7 +153,7 @@
   vars:
     docker_provisioner_inventory: /tmp/docker_inventory
   tasks:
-    - name: check provisioned containers connection
+    - name: Check provisioned containers connection
       command: >-
         ansible -m setup
         -i {{ docker_provisioner_inventory }}
@@ -175,7 +175,7 @@
                                                       | string
                                                     , "") }}
 
-- name: test cleanup
+- name: Test cleanup
   hosts: vagrant_sandbox_vms
   roles:
     - role: amtega.docker_provisioner
@@ -192,11 +192,11 @@
       docker_provisioner_container_state: absent
       docker_provisioner_in_memory_inventory: true
   tasks:
-    - name: get containers
+    - name: Get containers
       command: docker ps -a -q
       register: get_containers_result
 
-    - name: check that containers were removed
+    - name: Check that containers were removed
       assert:
         that: not get_containers_result.stdout is search(item)
       loop: >-
@@ -205,12 +205,12 @@
            | map(attribute="name")
            | list }}
 
-    - name: remove presets info state file
+    - name: Remove presets info state file
       file:
         path: "{{ test_state_file }}"
         state: absent
 
-- name: cleanup vagrant sandbox
+- name: Cleanup vagrant sandbox
   hosts: localhost
   roles:
     - role: amtega.vagrant_sandbox

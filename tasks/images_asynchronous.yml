@@ -2,7 +2,7 @@
 # Setup docker images asynchronously
 
 - block:
-    - name: launch asynchronous docker image deploy
+    - name: Launch asynchronous docker image deploy
       docker_image:
         name: "{{ image.name }}"
         dockerfile: >-
@@ -34,7 +34,7 @@
       poll: 0
       changed_when: false
 
-    - name: check asynchronous docker image deploy
+    - name: Check asynchronous docker image deploy
       async_status:
         jid: "{{ async_result_item.ansible_job_id }}"
       loop: "{{ docker_provisioner_images_async_result.results }}"

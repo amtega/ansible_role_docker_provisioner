@@ -1,7 +1,7 @@
 ---
 # Setup docker images sequentially
 
-- name: sequential docker images deploy
+- name: Sequential docker images deploy
   docker_image:
     name: "{{ image.name }}"
     dockerfile: >-

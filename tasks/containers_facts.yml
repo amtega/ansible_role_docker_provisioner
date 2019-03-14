@@ -2,13 +2,13 @@
 # Get current containers facts
 
 - block:
-    - name: get docker containers
+    - name: Get docker containers
       command: docker ps -a -q
       register: docker_provisioner_get_containers_result
       changed_when: false
       check_mode: no
 
-    - name: inspect docker containers
+    - name: Inspect docker containers
       command: >-
         docker inspect
         {{ docker_provisioner_get_containers_result.stdout_lines | join(" ") }}
@@ -17,7 +17,7 @@
       changed_when: false
       check_mode: no
 
-    - name: get containers ssh public keys
+    - name: Get containers ssh public keys
       command: >-
         ssh-keyscan \
         -T \
@@ -44,7 +44,7 @@
         default_public_key_scan_timeout: >-
           {{ docker_provisioner_container_public_key_scan_timeout }}
 
-    - name: setup fact with containers ansible-playbook in-memory info
+    - name: Setup fact with containers ansible-playbook in-memory info
       set_fact:
         docker_provisioner_containers_facts: >-
           {{ lookup('template', 'facts.j2') | from_yaml }}

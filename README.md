@@ -4,7 +4,6 @@ This is an [Ansible](http://www.ansible.com) role to provisione docker images an
 
 ## Requirements
 
-- [Ansible 2.7+](http://docs.ansible.com/ansible/latest/intro_installation.html)
 - [Docker](https://docs.docker.com/engine/installation/). You can use [amtega.docker_engine](https://galaxy.ansible.com/amtega/vagrant_engine/) role to setup it.
 - [docker-py](https://github.com/docker/docker-py). Role [amtega.docker_engine](https://galaxy.ansible.com/amtega/vagrant_engine/) above also installs this Python module.
 
@@ -36,23 +35,24 @@ This is an example playbook:
     # Provisione images and non ssh based containers
 
     - role: amtega.docker_provisioner
-      docker_provisioner_images: "{{ docker_presets_images }}"
-      docker_provisioner_image_state: present
-      docker_provisioner_image_force: true
-      docker_provisioner_containers: "{{ docker_presets_containers }}"
-      docker_provisioner_container_restart: true
-      docker_provisioner_container_tty: false
-      docker_provisioner_container_state: started
+      vars:
+        docker_provisioner_images: "{{ docker_presets_images }}"
+        docker_provisioner_image_state: present
+        docker_provisioner_image_force: true
+        docker_provisioner_containers: "{{ docker_presets_containers }}"
+        docker_provisioner_container_restart: true
+        docker_provisioner_container_tty: false
+        docker_provisioner_container_state: started
 
     # Cleanup provisioned containers
 
     - role: amtega.docker_provisioner
-
-      docker_provisioner_images: []
-      docker_provisioner_image_force: true
-      docker_provisioner_container_state: absent
-      docker_provisioner_containers: "{{ docker_presets_containers }}"
-      docker_provisioner_container_restart: true
+      vars:
+        docker_provisioner_images: []
+        docker_provisioner_image_force: true
+        docker_provisioner_container_state: absent
+        docker_provisioner_containers: "{{ docker_presets_containers }}"
+        docker_provisioner_container_restart: true
 ```
 
 ## Testing
