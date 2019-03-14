@@ -2,10 +2,10 @@
 # Setup docker containers
 
 - block:
-    - name: get current containers facts
+    - name: Get current containers facts
       import_tasks: containers_facts.yml
 
-    - name: provisione containers
+    - name: Provisione containers
       import_tasks: "{{ docker_provisioner_containers_provisioning_include }}"
       vars:
         method: "{{ docker_provisioner_containers_provisioning_method }}"
@@ -15,10 +15,10 @@
                        "containers_sequential.yml") }}
 
     - block:
-        - name: refresh provisioned containers facts
+        - name: Refresh provisioned containers facts
           import_tasks: containers_facts.yml
 
-        - name: create .ssh directory
+        - name: Create .ssh directory
           file:
             path: "~/.ssh"
             state: directory
@@ -30,7 +30,7 @@
           loop: "{{ docker_provisioner_known_hosts_dest }}"
           delegate_to: "{{ item }}"
 
-        - name: setup ssh known_hosts entries
+        - name: Setup ssh known_hosts entries
           known_hosts:
             name: >-
               {{ "["
@@ -60,7 +60,7 @@
               {{ item.1.state | default(docker_provisioner_container_state) }}
           delegate_to: "{{ item.0 }}"
 
-    - name: setup ansible-playbook in-memory inventory for non ssh containers
+    - name: Setup ansible-playbook in-memory inventory for non ssh containers
       add_host:
         name: "{{ container.name }}"
         ansible_host: "{{ container.ansible_host }}"
@@ -81,7 +81,7 @@
         loop_var: container
       delegate_to: localhost
 
-    - name: setup ansible-playbook in-memory inventory for ssh containers
+    - name: Setup ansible-playbook in-memory inventory for ssh containers
       add_host:
         name: "{{ container.name }}"
         ansible_host: "{{ container.ansible_host }}"
@@ -109,7 +109,7 @@
         loop_var: container
       delegate_to: localhost
 
-    - name: save inventory file with the deployed containers
+    - name: Save inventory file with the deployed containers
       template:
         src: inventory.yml.j2
         dest: "{{ docker_provisioner_inventory }}"
