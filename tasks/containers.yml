@@ -26,7 +26,8 @@
           when: >-
             docker_provisioner_containers_facts
             | selectattr("ansible_port", "defined")
-            | list | length > 0
+            | list
+            | length > 0
           loop: "{{ docker_provisioner_known_hosts_dest }}"
           delegate_to: "{{ item }}"
 
@@ -68,7 +69,7 @@
         docker_ip: "{{ container.docker_ip }}"
         ansible_connection: "{{ container.ansible_connection }}"
         ansible_docker_extra_args: "{{ container.ansible_docker_extra_args }}"
-      when: docker_provisioner_in_memory_inventory
+      when: docker_provisioner_in_memory_inventory | bool
       changed_when: false
       loop: >-
         {{ docker_provisioner_containers_facts
@@ -95,7 +96,7 @@
              | default(docker_provisioner_container_ssh_port) }}
         ansible_connection: "{{ container.ansible_connection }}"
         ssh_public_keys: "{{ container.ssh_public_keys | default('') }}"
-      when: docker_provisioner_in_memory_inventory
+      when: docker_provisioner_in_memory_inventory | bool
       changed_when: false
       loop: >-
         {{ docker_provisioner_containers_facts
