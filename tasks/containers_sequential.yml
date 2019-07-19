@@ -34,7 +34,7 @@
           {{ container.networks
              | default(docker_provisioner_container_networks)
              | default(omit) }}
-        networks_cli_compatible: yes             
+        networks_cli_compatible: yes
         exposed_ports: >-
           {{ container.exposed_ports
              | default(docker_provisioner_container_exposed_ports) }}
