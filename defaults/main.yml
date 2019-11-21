@@ -54,6 +54,9 @@ docker_provisioner_images_provisioning_method: sequential
 #                                  # to the running inventory
 #   ansible_user: root             # Ansible user to connect the container
 #   ansible_password: root         # Ansible password to connect the container
+#   ansible_ssh_common_args: >-    # Ansible SSH common args to use
+#     -o PubkeyAuthentication=no
+#     -o StrictHostKeyChecking=no
 #   ansible_python_interpreter: >- # Ansible python interpreter to use
 #     /usr/bin/python3
 #   groups:                        # List of groups where to add the provisioned
@@ -116,6 +119,10 @@ docker_provisioner_container_max_provisioning_time: 200
 docker_provisioner_container_public_key_scan_timeout: 2
 docker_provisioner_container_ansible_user: root
 docker_provisioner_container_ansible_password: root
+docker_provisioner_container_ansible_ssh_common_args: >-
+    -o PreferredAuthentications=password
+    -o PubkeyAuthentication=no
+    -o StrictHostKeyChecking=no
 docker_provisioner_container_ansible_python_interpreter: /usr/bin/python3
 docker_provisioner_container_groups:
   - "docker_provisioner_containers"

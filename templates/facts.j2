@@ -85,6 +85,8 @@
                     | default(docker_provisioner_container_ansible_user) }}"
   ansible_password: "{{ container_attributes.ansible_password
                         | default(docker_provisioner_container_ansible_password) }}"
+  ansible_ssh_common_args: "{{ container_attributes.ansible_ssh_common_args
+                               | default(docker_provisioner_container_ansible_ssh_common_args) }}"
   ansible_python_interpreter: "{{ container_attributes.ansible_python_interpreter
                                   | default(docker_provisioner_container_ansible_python_interpreter) }}"
 {% endif %}

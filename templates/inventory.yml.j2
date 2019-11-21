@@ -26,6 +26,9 @@ all:
 {% if "ansible_password" in container %}
           ansible_password: {{ container.ansible_password }}
 {% endif %}
+{% if "ansible_ssh_common_args" in container %}
+          ansible_ssh_common_args: {{ container.ansible_ssh_common_args }}
+{% endif %}
 {% if "ansible_python_interpreter" in container %}
           ansible_python_interpreter: {{ container.ansible_python_interpreter }}
 {% endif %}

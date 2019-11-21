@@ -88,6 +88,7 @@
         ansible_host: "{{ container.ansible_host }}"
         ansible_user: "{{ container.ansible_user }}"
         ansible_password: "{{ container.ansible_password }}"
+        ansible_ssh_common_args: "{{ container.ansible_ssh_common_args }}"
         ansible_python_interpreter: "{{ container.ansible_python_interpreter }}"
         groups: "{{ container.groups }}"
         docker_ip: "{{ container.docker_ip }}"
