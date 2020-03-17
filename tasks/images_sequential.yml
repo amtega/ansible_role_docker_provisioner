@@ -14,13 +14,13 @@
       path: >-
         {{ image.path
            | default(docker_provisioner_image_path) }}
+      rm: >-
+        {{ image.rm
+           | default(docker_provisioner_image_rm) }}
       pull: yes
     force_source: >-
       {{ image.force
          | default(docker_provisioner_image_force) }}
-    rm: >-
-      {{ image.rm
-         | default(docker_provisioner_image_rm) }}
     source: build
     state: >-
       {{ image.state
