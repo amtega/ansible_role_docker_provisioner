@@ -21,8 +21,7 @@ This is an example playbook:
 
 ```yaml
 ---
-- name: docker_provisioner sample
-  hosts: localhost
+- hosts: localhost
   roles:
     # Load some presets for images and containers
 
