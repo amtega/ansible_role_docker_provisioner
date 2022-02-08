@@ -3,19 +3,20 @@
 
 galaxy_info:
   role_name: docker_provisioner
+  namespace: amtega
   author: Juan Antonio Valiño García
   description: Provisione docker images and containers
   company: AMTEGA - Xunta de Galicia
   license: GPLv3 or EUPL
-  min_ansible_version: 2.9
+  min_ansible_version: 2.10
   platforms:
     - name: EL
       versions:
         - 7
     - name: Fedora
       versions:
-        - 29
-        - 30
+        - 34
+        - 35
   galaxy_tags:
     - docker
     - system
@@ -28,3 +29,10 @@ dependencies:
         centos: 7
         fedora: 29
         redhat: 7
+
+  - role: amtega.packages
+    vars:
+      packages_python:
+        all:
+          all:
+            docker: present

@@ -1,0 +1,16 @@
+---
+
+- name: Prepare
+  hosts: molecule_hosts
+  gather_facts: no
+  become: yes
+  roles:
+    - role: amtega.packages
+      vars:
+        packages_os:
+          all:
+            all:
+              python3: present
+
+    - role: amtega.docker_engine
+    - role: amtega.python_semanage

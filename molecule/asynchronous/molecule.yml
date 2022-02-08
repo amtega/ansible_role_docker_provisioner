@@ -1,0 +1,73 @@
+---
+
+dependency:
+  name: galaxy
+  enabled: yes
+  options:
+    ignore-certs: yes
+    ignore-errors: yes
+    role-file: "${MOLECULE_SCENARIO_DIRECTORY}/../resources/requirements.yml"
+    requirements-file: >-
+      ${MOLECULE_SCENARIO_DIRECTORY}/../resources/requirements.yml
+driver:
+  name: vagrant
+  provider:
+    name: virtualbox
+lint: "${MOLECULE_SCENARIO_DIRECTORY}/../resources/linters.sh"
+platforms:
+  - name: "centos7-${INSTANCE_UUID:-1}"
+    box: centos/7
+    memory: 2048
+    groups:
+      - molecule_hosts
+      - molecule_hosts_centos
+  - name: "centos8-${INSTANCE_UUID:-1}"
+    box: centos/stream8
+    memory: 2048
+    groups:
+      - molecule_hosts
+      - molecule_hosts_centos
+  - name: "fedora34-${INSTANCE_UUID:-1}"
+    box: fedora/34-cloud-base
+    memory: 3072
+    groups:
+      - molecule_hosts
+      - molecule_hosts_fedora
+  - name: "fedora35-${INSTANCE_UUID:-1}"
+    box: fedora/35-cloud-base
+    memory: 2048
+    groups:
+      - molecule_hosts
+      - molecule_hosts_fedora
+provisioner:
+  name: ansible
+  playbooks:
+    prepare: ../resources/prepare.yml
+    converge: ../resources/converge.yml
+    verify: ../resources/verify.yml
+    cleanup: ../resources/cleanup.yml
+    side_effect: ../resources/side_effect.yml
+  config_options:
+    defaults:
+      callbacks_enabled: profile_tasks
+      action_plugins: $PWD/action_plugins
+  inventory:
+    hosts:
+      molecule_hosts:
+        vars:
+          docker_provisioner_containers_provisioning_method: asynchronous
+          docker_provisioner_containers:
+            - name: container1
+              image: quay.io/centos/centos:centos8
+              command: /bin/bash
+              state: present
+
+            - name: container2
+              image: quay.io/fedora/fedora:35
+              command: /bin/bash
+              state: present
+      molecule_hosts_fedora:
+        vars:
+          ansible_python_interpreter: /usr/bin/python3
+verifier:
+  name: ansible
