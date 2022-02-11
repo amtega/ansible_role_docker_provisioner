@@ -21,24 +21,28 @@ platforms:
     groups:
       - molecule_hosts
       - molecule_hosts_centos
+      - molecule_hosts_centos_7
   - name: "centos8-${INSTANCE_UUID:-1}"
     box: centos/stream8
     memory: 2048
     groups:
       - molecule_hosts
       - molecule_hosts_centos
+      - molecule_hosts_centos_8
   - name: "fedora34-${INSTANCE_UUID:-1}"
     box: fedora/34-cloud-base
     memory: 3072
     groups:
       - molecule_hosts
       - molecule_hosts_fedora
+      - molecule_hosts_fedora_34
   - name: "fedora35-${INSTANCE_UUID:-1}"
     box: fedora/35-cloud-base
     memory: 2048
     groups:
       - molecule_hosts
       - molecule_hosts_fedora
+      - molecule_hosts_fedora_35
 provisioner:
   name: ansible
   playbooks:

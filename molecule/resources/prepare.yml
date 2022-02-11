@@ -12,5 +12,10 @@
             all:
               python3: present
 
-    - role: amtega.docker_engine
+        packages_python:
+          all:
+            all:
+              docker: present
+
     - role: amtega.python_semanage
+    - role: amtega.docker_engine

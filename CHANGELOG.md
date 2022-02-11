@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.8.0] - 2022-02-XX
+## [1.8.0] - 2022-02-11
 ### Changed
 - Supported distros. Related to ansible/main#263
 - Migrated tests to molecule
