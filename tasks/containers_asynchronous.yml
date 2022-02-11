@@ -24,6 +24,9 @@
         tls: >-
           {{ container.tls
              | default(docker_provisioner_container_tls) }}
+        tls_hostname: >-
+          {{ container.tls_hostname
+             | default(docker_provisioner_container_tls_hostname) }}
         stop_timeout: >-
           {{ container.stop_timeout
              | default(docker_provisioner_container_stop_timeout) }}
@@ -44,6 +47,9 @@
         command: >-
           {{ container.command
              | default(docker_provisioner_container_command) }}
+        command_handling: >-
+          {{ container.command_handling
+             | default(docker_provisioner_container_command_handling) }}
         env: >-
           {{ container.env
              | default(docker_provisioner_container_env) }}
@@ -56,6 +62,9 @@
         volumes: >-
           {{ container.volumes
              | default(docker_provisioner_container_volumes) }}
+        container_default_behavior: >-
+          {{ container.default_behavior
+             | default(docker_provisioner_container_default_behavior) }}
       loop: "{{ docker_provisioner_containers }}"
       register: docker_provisioner_containers_async_result
       loop_control:
@@ -68,7 +77,7 @@
         {{ container.max_provisioning_time
            | default(docker_provisioner_container_max_provisioning_time) }}
       poll: 0
-      changed_when: false
+      changed_when: no
 
     - name: Check asynchronous docker containers deploy
       async_status:
