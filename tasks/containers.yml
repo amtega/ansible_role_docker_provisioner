@@ -8,9 +8,9 @@
     - name: Provisione containers
       import_tasks: "{{ docker_provisioner_containers_provisioning_include }}"
       vars:
-        method: "{{ docker_provisioner_containers_provisioning_method }}"
         docker_provisioner_containers_provisioning_include: >-
-          {{ (method == "asynchronous")
+          {{ (docker_provisioner_containers_provisioning_method
+              == "asynchronous")
              | ternary("containers_asynchronous.yml",
                        "containers_sequential.yml") }}
 
@@ -70,7 +70,7 @@
         ansible_connection: "{{ container.ansible_connection }}"
         ansible_docker_extra_args: "{{ container.ansible_docker_extra_args }}"
       when: docker_provisioner_in_memory_inventory | bool
-      changed_when: false
+      changed_when: no
       loop: >-
         {{ docker_provisioner_containers_facts
            | selectattr("ansible_connection", "equalto", "docker")
@@ -98,7 +98,7 @@
         ansible_connection: "{{ container.ansible_connection }}"
         ssh_public_keys: "{{ container.ssh_public_keys | default('') }}"
       when: docker_provisioner_in_memory_inventory | bool
-      changed_when: false
+      changed_when: no
       loop: >-
         {{ docker_provisioner_containers_facts
            | selectattr("ansible_connection", "equalto", "ssh")
@@ -115,6 +115,7 @@
       template:
         src: inventory.yml.j2
         dest: "{{ docker_provisioner_inventory }}"
+        mode: 0640
         backup: no
       when:
         - docker_provisioner_inventory is defined

@@ -5,7 +5,7 @@
     - name: Get docker containers
       command: docker ps -a -q
       register: docker_provisioner_get_containers_result
-      changed_when: false
+      changed_when: no
       check_mode: no
 
     - name: Inspect docker containers
@@ -14,7 +14,7 @@
         {{ docker_provisioner_get_containers_result.stdout_lines | join(" ") }}
       register: docker_provisioner_inspect_result
       when: docker_provisioner_get_containers_result.stdout | length > 0
-      changed_when: false
+      changed_when: no
       check_mode: no
 
     - name: Get containers ssh public keys
@@ -25,7 +25,7 @@
            | default(default_public_key_scan_timeout) }} \
         -p {{ container.ansible_port }} \
         {{ docker_provisioner_host_address }}
-      changed_when: false
+      changed_when: no
       register: docker_provisioner_get_public_keys_result
       when: docker_provisioner_known_hosts_dest | length > 0
       loop: >-

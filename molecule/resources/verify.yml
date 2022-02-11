@@ -1,0 +1,19 @@
+---
+
+- name: Verify
+  hosts: molecule_hosts
+  gather_facts: no
+  become: yes
+  tasks:
+    - name: Gather containers
+      command: docker ps -a  --format "{{ '{{' }}.Names {{ '}}' }}"
+      changed_when: no
+      register: docker_ls_result
+
+    - name: Assert containers where deployed
+      assert:
+        quiet: yes
+        that: >-
+          ["container1", "container2"]
+          | intersect(docker_ls_result.stdout_lines)
+          | length > 0

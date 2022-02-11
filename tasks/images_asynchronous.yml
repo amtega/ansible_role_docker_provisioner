@@ -41,7 +41,7 @@
         {{ image.max_provisioning_time
            | default(docker_provisioner_image_max_provisioning_time) }}
       poll: 0
-      changed_when: false
+      changed_when: no
 
     - name: Check asynchronous docker image deploy
       async_status:

@@ -8,13 +8,13 @@
 #   state: present              # Can be present or absent
 #   dockerfile: Dockerfile      # Name of the Dockerfile to build the image
 #   buildargs: {}               # Dict with the build arguments to build
-#   force: false                # Force build / removal
+#   force: no                # Force build / removal
 #   path: .                     # Directory containing the context and
 #                               # Dockerfile for building
-#   rm: true                    # Remove intermediate containers after build
+#   rm: yes                    # Remove intermediate containers after build
 #   timeout: 60                 # Seconds to wait on a response from the API.
 #   repository: localhost:5000  # Full path to a repository
-#   push: true                  # Push the image to the registry
+#   push: yes                  # Push the image to the registry
 #   max_provisioning_time: 120  # Maximum asynchronous provisioning time }
 
 docker_provisioner_images: []
@@ -24,17 +24,18 @@ docker_provisioner_images: []
 docker_provisioner_images_provisioning_method: sequential
 
 # List of dicts with the containers to provisione. The dicts must have the
-# following values ( see docker_container module documentation for detais of
+# following values (see docker_container module documentation for detais of
 # each option):
 #
 # { name: ""                       # Name of the container
 #   image: ""                      # Image to use to start the container
 #   state: present                 # Can be started, present, absent and stopped
-#   privileged: true               # Give extended privileges to the container
-#   tls: true                      # Secure the connection to the API by using
+#   privileged: yes               # Give extended privileges to the container
+#   tls: yes                      # Secure the connection to the API by using
                                    # TLS
+#   tls_hostname: localhost        # Expected hostname during tls verification
 #   stop_timeout: 1                # Seconds to wait for the container to stop
-#   tty: true                      # Allocate a pseudo-TTY
+#   tty: yes                      # Allocate a pseudo-TTY
 #   networks:                      # List of dicts with the networks the
 #     name: TestingNet             # container belongs to.
 #   exposed_ports: [22]            # List of additional container exposed ports
@@ -42,13 +43,15 @@ docker_provisioner_images_provisioning_method: sequential
 #                                  # ports
 #   command: ""                    # Command to execute when the container
 #                                  # starts
+#   command_handling: correct
 #   env: {}                        # Dictionary with container environment
 #   labels: {}                     # Dictionary with container labels
 #   links: []                      # List of name aliases for linked containers
-#   recreate: false                # Force the re-creation
-#   force_kill: false              # Use the kill command when stopping
-#   restart: false                 # Force stop and restart
+#   recreate: no                # Force the re-creation
+#   force_kill: no              # Use the kill command when stopping
+#   restart: no                 # Force stop and restart
 #   volumes: []                    # List of volumes to mount
+#   default_behavior: no_defaults
 #   ssh_port: 22                   # Port where container listens for ssh
 #                                  # If defined the role will add the container
 #                                  # to the running inventory
@@ -81,15 +84,15 @@ docker_provisioner_image_name: ""
 docker_provisioner_image_state: present
 docker_provisioner_image_dockerfile: Dockerfile
 docker_provisioner_image_buildargs: {}
-docker_provisioner_image_force: false
+docker_provisioner_image_force: no
 docker_provisioner_image_path: >-
   {{ (ansible_facts.user_id == "root")
      | ternary("/var/lib/docker/build",
                "~/.docker/build" | expanduser) }}
-docker_provisioner_image_rm: true
+docker_provisioner_image_rm: yes
 docker_provisioner_image_timeout: 60
 docker_provisioner_image_repository: ""
-docker_provisioner_image_push: false
+docker_provisioner_image_push: no
 docker_provisioner_image_max_provisioning_time: 120
 
 # General container options to apply if no other ones are specified in the
@@ -98,22 +101,25 @@ docker_provisioner_image_max_provisioning_time: 120
 
 docker_provisioner_container_name: ""
 docker_provisioner_container_image: ""
-docker_provisioner_container_privileged: false
-docker_provisioner_container_tls: true
+docker_provisioner_container_privileged: no
+docker_provisioner_container_tls: yes
+docker_provisioner_container_tls_hostname: localhost
 docker_provisioner_container_stop_timeout: 1
-docker_provisioner_container_tty: false
+docker_provisioner_container_tty: no
 # docker_provisioner_container_networks:
 docker_provisioner_container_exposed_ports: []
 docker_provisioner_container_command: ""
+docker_provisioner_container_command_handling: correct
 docker_provisioner_container_env: {}
 docker_provisioner_container_labels: {}
 docker_provisioner_container_links: []
-docker_provisioner_container_recreate: false
-docker_provisioner_container_force_kill: false
-docker_provisioner_container_restart: false
+docker_provisioner_container_recreate: no
+docker_provisioner_container_force_kill: no
+docker_provisioner_container_restart: no
 docker_provisioner_container_state: present
 docker_provisioner_container_volumes: []
 docker_provisioner_container_published_ports: []
+docker_provisioner_container_default_behavior: no_defaults
 docker_provisioner_container_ssh_port: ""
 docker_provisioner_container_max_provisioning_time: 200
 docker_provisioner_container_public_key_scan_timeout: 2
@@ -135,7 +141,7 @@ docker_provisioner_container_groups_unmanaged:
 # docker engines in the play, you must disable this flag and  call the this role
 # again with this flag activated (and images/containers list empty)
 
-docker_provisioner_in_memory_inventory: true
+docker_provisioner_in_memory_inventory: yes
 
 # Ip address where docker host daemon is listening or where containers ports
 # are bound

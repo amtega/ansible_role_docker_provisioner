@@ -1,0 +1,8 @@
+---
+
+roles:
+  - amtega.docker_engine
+  - amtega.packages
+  - amtega.python_semanage
+
+collections: []
