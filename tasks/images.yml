@@ -8,6 +8,25 @@
       {{ (method == "asynchronous")
          | ternary("images_asynchronous.yml",
                    "images_sequential.yml") }}
+
+    docker_provisioner_image_build_options:
+      dockerfile: >-
+        {{ image.dockerfile
+           | default(docker_provisioner_image_dockerfile) }}
+      args: >-
+        {{ image.buildargs
+           | default(docker_provisioner_image_buildargs) }}
+      path: >-
+        {{ image.path
+           | default(docker_provisioner_image_path) }}
+      rm: >-
+        {{ image.rm
+           | default(docker_provisioner_image_rm) }}
+      pull: yes
+
+    docker_provisioner_image_build: >-
+      {{ (image.source | default(docker_provisioner_image_source) == "build")
+         | ternary(docker_provisioner_image_build_options, omit) }}
   tags:
     - role::docker_provisioner
     - role::docker_provisioner::images

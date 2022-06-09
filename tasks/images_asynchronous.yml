@@ -5,20 +5,7 @@
     - name: Launch asynchronous docker image deploy
       docker_image:
         name: "{{ image.name }}"
-        build:
-          dockerfile: >-
-            {{ image.dockerfile
-               | default(docker_provisioner_image_dockerfile) }}
-          args: >-
-            {{ image.buildargs
-               | default(docker_provisioner_image_buildargs) }}
-          path: >-
-            {{ image.path
-               | default(docker_provisioner_image_path) }}
-          rm: >-
-            {{ image.rm
-               | default(docker_provisioner_image_rm) }}
-          pull: yes
+        build: "{{ docker_provisioner_image_build }}"
         force_source: >-
           {{ image.force
              | default(docker_provisioner_image_force) }}
@@ -28,7 +15,9 @@
         timeout: >-
           {{ image.timeout
              | default(docker_provisioner_image_timeout) }}
-        source: build
+        source: >-
+            {{ image.source
+               | default(docker_provisioner_image_source) }}
         state: >-
           {{ image.state
              | default(docker_provisioner_image_state) }}
