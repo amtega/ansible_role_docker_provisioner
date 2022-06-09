@@ -82,6 +82,7 @@ docker_provisioner_containers_provisioning_method: asynchronous
 
 docker_provisioner_image_name: ""
 docker_provisioner_image_state: present
+docker_provisioner_image_source: pull
 docker_provisioner_image_dockerfile: Dockerfile
 docker_provisioner_image_buildargs: {}
 docker_provisioner_image_force: no
