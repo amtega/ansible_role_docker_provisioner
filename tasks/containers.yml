@@ -1,7 +1,7 @@
 ---
-# Setup docker containers
 
-- block:
+- name: Setup docker containers
+  block:
     - name: Get current containers facts
       import_tasks: containers_facts.yml
 
@@ -14,12 +14,13 @@
              | ternary("containers_asynchronous.yml",
                        "containers_sequential.yml") }}
 
-    - block:
+    - name: Setup docker containers ssh stuff
+      block:
         - name: Refresh provisioned containers facts
           import_tasks: containers_facts.yml
 
         - name: Create .ssh directory
-          file:
+          ansible.builtin.file:
             path: "~/.ssh"
             state: directory
             mode: 0700
@@ -32,7 +33,7 @@
           delegate_to: "{{ item }}"
 
         - name: Setup ssh known_hosts entries
-          known_hosts:
+          ansible.builtin.known_hosts:
             name: >-
               {{ "["
                  + docker_provisioner_host_address
@@ -62,7 +63,7 @@
           delegate_to: "{{ item.0 }}"
 
     - name: Setup ansible-playbook in-memory inventory for non ssh containers
-      add_host:
+      ansible.builtin.add_host:
         name: "{{ container.name }}"
         ansible_host: "{{ container.ansible_host }}"
         groups: "{{ container.groups }}"
@@ -83,7 +84,7 @@
       delegate_to: localhost
 
     - name: Setup ansible-playbook in-memory inventory for ssh containers
-      add_host:
+      ansible.builtin.add_host:
         name: "{{ container.name }}"
         ansible_host: "{{ container.ansible_host }}"
         ansible_user: "{{ container.ansible_user }}"
@@ -112,7 +113,7 @@
       delegate_to: localhost
 
     - name: Save inventory file with the deployed containers
-      template:
+      ansible.builtin.template:
         src: inventory.yml.j2
         dest: "{{ docker_provisioner_inventory }}"
         mode: 0640

@@ -8,15 +8,15 @@ galaxy_info:
   description: Provisione docker images and containers
   company: AMTEGA - Xunta de Galicia
   license: GPLv3 or EUPL
-  min_ansible_version: 2.10
+  min_ansible_version: "2.10"
   platforms:
     - name: EL
       versions:
-        - 7
+        - "7"
     - name: Fedora
       versions:
-        - 34
-        - 35
+        - "34"
+        - "35"
   galaxy_tags:
     - docker
     - system

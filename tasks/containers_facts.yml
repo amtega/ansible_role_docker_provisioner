@@ -1,15 +1,15 @@
 ---
-# Get current containers facts
 
-- block:
+- name: Gather containers facts
+  block:
     - name: Get docker containers
-      command: docker ps -a -q
+      ansible.builtin.command: docker ps -a -q
       register: docker_provisioner_get_containers_result
       changed_when: no
       check_mode: no
 
     - name: Inspect docker containers
-      command: >-
+      ansible.builtin.command: >-
         docker inspect
         {{ docker_provisioner_get_containers_result.stdout_lines | join(" ") }}
       register: docker_provisioner_inspect_result
@@ -17,8 +17,8 @@
       changed_when: no
       check_mode: no
 
-    - name: Get containers ssh public keys
-      command: >-
+    - name: Get containers ssh public keys   # noqa jinja[spacing]
+      ansible.builtin.command: >-
         ssh-keyscan \
         -T \
         {{ container.public_key_scan_timeout
@@ -45,7 +45,7 @@
           {{ docker_provisioner_container_public_key_scan_timeout }}
 
     - name: Setup fact with containers ansible-playbook in-memory info
-      set_fact:
+      ansible.builtin.set_fact:
         docker_provisioner_containers_facts: >-
           {{ lookup('template', 'facts.j2') | from_yaml }}
   tags:

@@ -6,12 +6,13 @@
   become: yes
   tasks:
     - name: Gather containers
-      command: docker ps -a  --format "{{ '{{' }}.Names {{ '}}' }}"
+      ansible.builtin.command: >-
+        docker ps -a  --format "{{ '{{' }}.Names {{ '}}' }}"
       changed_when: no
       register: docker_ls_result
 
     - name: Assert containers where deployed
-      assert:
+      ansible.builtin.assert:
         quiet: yes
         that: >-
           ["container1", "container2"]
