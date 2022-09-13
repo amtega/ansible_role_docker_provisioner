@@ -1,5 +1,4 @@
 ---
-# Role tasks
 
 - name: Setup images
   include_tasks: images.yml

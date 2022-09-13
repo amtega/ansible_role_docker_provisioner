@@ -1,9 +1,9 @@
 ---
-# Setup docker containers asynchronously
 
-- block:
+- name: Setup docker containers asynchronously
+  block:
     - name: Launch asynchronous docker containers deploy
-      docker_container:
+      community.docker.docker_container:
         name: "{{ container.name }}"
         image: "{{ container.image }}"
         privileged: >-
@@ -73,14 +73,16 @@
              + " "
              + container.state | default(docker_provisioner_container_state) }}
         loop_var: container
-      async: >-
-        {{ container.max_provisioning_time
-           | default(docker_provisioner_container_max_provisioning_time) }}
+      async: "{{ docker_provisioner_async }}"
       poll: 0
       changed_when: no
+      vars:
+        docker_provisioner_async: >-
+          {{ container.max_provisioning_time
+             | default(docker_provisioner_container_max_provisioning_time) }}
 
     - name: Check asynchronous docker containers deploy
-      async_status:
+      ansible.builtin.async_status:
         jid: "{{ async_result_item.ansible_job_id }}"
       loop: "{{ docker_provisioner_containers_async_result.results }}"
       loop_control:
@@ -92,10 +94,12 @@
         loop_var: async_result_item
       register: docker_provisioner_containers_deploy_result
       until: docker_provisioner_containers_deploy_result.finished
-      retries: >-
-        {{ async_result_item.container.max_provisioning_time
-           | default(docker_provisioner_container_max_provisioning_time) }}
+      retries: "{{ docker_provisioner_retries }}"
       delay: 1
+      vars:
+        docker_provisioner_retries: >-
+          {{ async_result_item.container.max_provisioning_time
+             | default(docker_provisioner_container_max_provisioning_time) }}
   tags:
     - role::docker_provisioner
     - role::docker_provisioner::containers

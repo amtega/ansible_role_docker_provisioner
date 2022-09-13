@@ -1,8 +1,7 @@
 ---
-# Setup docker images sequentially
 
 - name: Sequential docker images deploy
-  docker_image:
+  community.docker.docker_image:
     name: "{{ image.name }}"
     build: "{{ docker_provisioner_image_build }}"
     force_source: >-

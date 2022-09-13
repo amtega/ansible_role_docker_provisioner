@@ -125,7 +125,7 @@ docker_provisioner_container_ssh_port: ""
 docker_provisioner_container_max_provisioning_time: 200
 docker_provisioner_container_public_key_scan_timeout: 2
 docker_provisioner_container_ansible_user: root
-docker_provisioner_container_ansible_password: root
+docker_provisioner_container_ansible_password: root  # pragma: allowlist secret
 docker_provisioner_container_ansible_ssh_common_args: >-
     -o PreferredAuthentications=password
     -o PubkeyAuthentication=no
