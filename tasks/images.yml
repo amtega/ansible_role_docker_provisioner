@@ -1,7 +1,7 @@
 ---
-# Setup docker images
 
-- import_tasks: "{{ docker_provisioner_images_provisioning_include }}"
+- ansible.builtin.import_tasks: >-
+    {{ docker_provisioner_images_provisioning_include }}
   vars:
     method: "{{ docker_provisioner_images_provisioning_method }}"
     docker_provisioner_images_provisioning_include: >-

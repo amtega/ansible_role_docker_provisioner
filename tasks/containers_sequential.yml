@@ -1,9 +1,9 @@
 ---
-# Setup docker containers sequentially
 
-- block:
+- name: Setup docker containers sequentially
+  block:
     - name: Sequential docker containers deploy
-      docker_container:
+      community.docker.docker_container:
         name: "{{ container.name }}"
         image: "{{ container.image }}"
         privileged: >-
